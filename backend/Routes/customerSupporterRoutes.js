@@ -1,21 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const supporterController = require('../Controllers/customerSupporter');
+
 const upload = require("../middleware/uploadMiddleware");
+const authMiddleware = require('../middleware/authMiddleware');
+const supporterController = require('../Controllers/customerSupporter'); // Make sure the path is correct
 
-// Get all customer supporters
-router.get('/', supporterController.getSupporters);
+// Define your routes
+router.get('/supporters', supporterController.getCustomerSupporter); 
+router.get('/supporter',supporterController.getCustomerSupporterById);
+router.post('/signup', upload.single("profile_image"), supporterController.addCustomerSupporter);
+router.put('/updatesupporter', upload.single("profile_image"), supporterController.updateCustomerSupporter);
+router.put('/updatepassword', supporterController.updatePassword);
 
-// Get customer supporter by user_id (query param: ?id=123)
-router.get('/supporter', supporterController.getSupporterById);
-
-// Add new customer supporter with profile image upload
-router.post('/addsupporter', upload.single('profile_image'), supporterController.addSupporter);
-
-// Update existing customer supporter
-router.put('/updatesupporter', upload.single('profile_image'), supporterController.updateSupporter);
-
-// Delete customer supporter by user_id (query param: ?id=123)
-router.delete('/deletesupporter', supporterController.deleteSupporter);
-
+// Export the router instance
 module.exports = router;

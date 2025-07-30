@@ -1,21 +1,17 @@
+// Routes/learnerRoutes.js
 const express = require('express');
 const router = express.Router();
-const learnerController = require('../Controllers/learner');
+
 const upload = require("../middleware/uploadMiddleware");
+const authMiddleware = require('../middleware/authMiddleware'); // Assuming you'll use this for learner-specific protected routes
+const learnerController = require('../Controllers/learner');
 
-// Get all learners
 router.get('/', learnerController.getLearners);
-
-// Get learner by user_id (query param: ?id=123)
-router.get('/learner', learnerController.getLearnerById);
-
-// Add new learner with profile image upload
-router.post('/addlearner', upload.single('profile_image'), learnerController.addLearner);
-
-// Update existing learner
-router.put('/updatelearner', upload.single('profile_image'), learnerController.updateLearner);
-
-// Delete learner by user_id (query param: ?id=123)
-router.delete('/deletelearner', learnerController.deleteLearner);
+router.get('/user', learnerController.getLearnerById);
+router.post('/signup', upload.single("profile_image"), learnerController.addLearner);
+router.put('/update', upload.single("profile_image"), learnerController.updateLearner);
+router.put('/updatepassword', learnerController.updateLearnerPassword);
+router.get('/name', learnerController.getLearnerNameById); // Adjusted route for clarity if needed
+router.delete('/delete', learnerController.deleteLearner);
 
 module.exports = router;

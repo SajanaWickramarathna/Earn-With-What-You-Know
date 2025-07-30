@@ -1,34 +1,46 @@
+// userRoutes.js
 const express = require('express');
 const router = express.Router();
 
-const userController = require('../Controllers/user');
+const userController = require('../Controllers/user'); 
 const upload = require("../middleware/uploadMiddleware");
-const authMiddleware = require("../middleware/authMiddleware");
+const authMiddleware = require('../middleware/authMiddleware');
 
 router.get('/', userController.getUsers);
 
 router.get("/user", userController.getUserById);
 
-// ❌ Removed login route
-// router.post('/signin', userController.login);
+router.post('/signin', userController.login); 
 
-// ✅ New signup route
-router.post('/adduser', upload.single('profile_image'), userController.addUser);
+router.get('/me', authMiddleware(['admin', 'learner', 'creator', 'customer_supporter']), userController.authentication);
 
-router.put("/updateuser", upload.single('profile_image'), userController.updateUser);
-router.delete("/deleteuser", userController.deleteUser);
+router.get("/verify/:token", userController.verifyemail);
 
-// Example dashboards for role-based access
+router.put("/updateuser",upload.single('profile_image'), userController.updateUser);
+
+router.post('/forgotpassword', userController.forgotPassword);
+
+router.post('/reset-password/:token', userController.resetPassword);
+
+router.delete("/deleteuser", userController.deleteUser)
+
+
 router.get('/admin-dashboard', authMiddleware(['admin']), (req, res) => {
     res.json({ message: 'Welcome to Admin Dashboard' });
+  });
+  
+  router.get('/learner-dashboard', authMiddleware(['learner']), (req, res) => {
+    res.json({ message: 'Welcome to Learner Dashboard' });
 });
 
-router.get('/customer-dashboard', authMiddleware(['customer']), (req, res) => {
-    res.json({ message: 'Welcome to Customer Dashboard' });
+router.get('/creator-dashboard', authMiddleware(['creator']), (req, res) => {
+    res.json({ message: 'Welcome to Creator Dashboard' });
 });
-
-router.get('/support-dashboard', authMiddleware(['customer_supporter']), (req, res) => {
+    
+  router.get('/support-dashboard', authMiddleware(['customer_supporter']), (req, res) => {
     res.json({ message: 'Welcome to Customer Support Dashboard' });
-});
+  });
+
+ 
 
 module.exports = router;

@@ -1,16 +1,30 @@
-// authMiddleware.js
-module.exports = function (allowedRoles) {
-  return function (req, res, next) {
-    const user = req.user;  // Assumes req.user is populated by some auth system (e.g., JWT middleware)
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const SECRET_KEY = process.env.SECRET_KEY;
 
-    if (!user || !user.role) {
-      return res.status(401).json({ message: 'Unauthorized: No user info' });
+const authMiddleware = (roles) => (req, res, next) => {
+    const tokenHeader = req.header('Authorization');
+    const token = tokenHeader && tokenHeader.startsWith("Bearer ") ? tokenHeader.split(" ")[1] : null;
+
+    if (!token) {
+        return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
 
-    if (!allowedRoles.includes(user.role)) {
-      return res.status(403).json({ message: 'Forbidden: Access denied' });
-    }
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        req.user = decoded;
 
-    next();
-  };
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ message: 'Access denied. You do not have permission' });
+        }
+
+        next();
+    } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json({ message: "Session expired. Please log in again." });
+        }
+        return res.status(400).json({ message: 'Invalid token', error: error.message });
+    }
 };
+
+module.exports = authMiddleware;

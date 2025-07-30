@@ -1,21 +1,17 @@
+// Routes/creatorRoutes.js
 const express = require('express');
 const router = express.Router();
-const creatorController = require('../Controllers/creator');
+
 const upload = require("../middleware/uploadMiddleware");
+const authMiddleware = require('../middleware/authMiddleware'); // Assuming you'll use this for creator-specific protected routes
+const creatorController = require('../Controllers/creator');
 
-// Get all creators
 router.get('/', creatorController.getCreators);
-
-// Get creator by user_id (query param: ?id=123)
-router.get('/creator', creatorController.getCreatorById);
-
-// Add new creator with profile image upload
-router.post('/addcreator', upload.single('profile_image'), creatorController.addCreator);
-
-// Update existing creator
-router.put('/updatecreator', upload.single('profile_image'), creatorController.updateCreator);
-
-// Delete creator by user_id (query param: ?id=123)
-router.delete('/deletecreator', creatorController.deleteCreator);
+router.get('/user', creatorController.getCreatorById);
+router.post('/signup', upload.single("profile_image"), creatorController.addCreator);
+router.put('/update', upload.single("profile_image"), creatorController.updateCreator);
+router.put('/updatepassword', creatorController.updateCreatorPassword);
+router.get('/name', creatorController.getCreatorNameById); // Adjusted route for clarity if needed
+router.delete('/delete', creatorController.deleteCreator);
 
 module.exports = router;

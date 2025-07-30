@@ -1,10 +1,14 @@
+const jwt = require('jsonwebtoken');
+const emailSender = require('../utils/mailer');
 const Admin = require('../Models/user');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs'); 
+require("dotenv").config();
+
 
 exports.getAdmin = async(req,res) => {
     try {
         const admins = await Admin.find({role: "admin"});
-        if(!admins || admins.length === 0) { // Check for empty array
+        if(!admins) {
             return res.status(404).json({message: "No admins found"});
         }
         res.status(200).json(admins);
@@ -37,7 +41,7 @@ exports.getAdminByEmail = async (req, res) => {
     }catch (error) {
         res.status(500).json(error);
     }
-
+    
 };
 
 exports.addAdmin = async(req,res) => {
@@ -68,21 +72,23 @@ exports.addAdmin = async(req,res) => {
         })
         await admin.save();
 
-        // Removed emailSender and JWT related calls
+        const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "1h" });
+        await emailSender.sendAccountCredentitals(firstName,lastName,email,address,phone,password);
+        await emailSender.sendVerificationEmail(email,token);
+
         res.json({ message: "Admin SignUp successfully", admin });
     }catch (error) {
-        console.error("Error adding admin:", error); // Added for better debugging
         res.status(500).json(error);
     }
-
+   
 }
 
 
 exports.updateAdmin = async(req,res) => {
     try {
         const {firstName, lastName,email,address,phone} = req.body;
-        const user_id = req.body.userId;
-
+        const user_id = req.body.userId; 
+        
         const existingAdmin = await Admin.findOne({user_id});
         if (!existingAdmin) {
             return res.status(404).json({ message: "Admin not found" });
@@ -97,7 +103,7 @@ exports.updateAdmin = async(req,res) => {
             email,
             address,
             phone,
-            profilePic ,
+            profilePic , 
         }
 
         const admin = await Admin.findOneAndUpdate({user_id},updateData, {new:true});
@@ -107,7 +113,7 @@ exports.updateAdmin = async(req,res) => {
     }catch (error) {
         res.status(500).json(error);
     }
-
+   
 }
 
 exports.updatePassword = async (req,res) => {
@@ -121,7 +127,6 @@ exports.updatePassword = async (req,res) => {
 
         const hashedPassword = await bcrypt.hash(password,12);
         const admin = await Admin.findOneAndUpdate({user_id: id},{password: hashedPassword},{new:true});
-        if(!admin) return res.status(404).json({message: "Admin not found"}); // Added check if admin not found
 
         res.status(200).json({message: "Password updated Successfully!"});
     }catch (error) {
@@ -131,9 +136,8 @@ exports.updatePassword = async (req,res) => {
 
 exports.deleteAdmin = async(req,res) => {
     try {
-        const user_id = req.body.userId;
+        const user_id = req.body.userId; 
         const admin = await Admin.findOneAndDelete({user_id});
-        if(!admin) return res.status(404).json({message: "Admin not found"}); // Added check if admin not found
         res.json({message: "Admin deleted successfully"});
     }catch (error) {
         res.status(500).json({message: "Error deleting admin"});

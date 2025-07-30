@@ -1,102 +1,143 @@
-const User = require('../Models/user');
-const bcrypt = require('bcryptjs');
+const CustomerSupporter = require('../Models/user');
+const bcrypt = require('bcryptjs'); 
+const emailSender = require('../utils/mailer');
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
-exports.getSupporters = async (req, res) => {
-  try {
-    const supporters = await User.find({ role: 'customer_supporter' });
-    if (!supporters || supporters.length === 0) {
-      return res.status(404).json({ message: "No customer supporters found" });
+exports.getCustomerSupporter = async(req,res) => {
+    try {
+        const customerSupporters = await CustomerSupporter.find({role: "customer_supporter"});
+        if(!customerSupporters) {
+            return res.status(404).json({message: "No customerSupporters found"});
+        }
+        res.status(200).json(customerSupporters);
+    }catch (error) {
+        res.status(500).json({message: "Error fetching customerSupporters"});
     }
-    res.status(200).json(supporters);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching customer supporters" });
-  }
+}
+
+exports.getCustomerSupporterById = async(req, res) => {
+    try {
+        const id = req.query.id;
+        const customerSupporter = await CustomerSupporter.findById(id);
+        if(!customerSupporter) {
+            return res.status(404).json({message: "CustomerSupporter not found"});
+        }
+        res.status(200).json(customerSupporter);
+    }catch (error) {
+        res.status(500).json({message: "Error fetching customerSupporter"});
+    }
 };
 
-exports.getSupporterById = async (req, res) => {
-  try {
-    const id = req.query.id;
-    const supporter = await User.findOne({ user_id: id, role: 'customer_supporter' });
-    if (!supporter) {
-      return res.status(404).json({ message: "Customer supporter not found" });
+exports.getCustomerSupporterByEmail = async (req, res) => {
+    try {
+        const email = req.body.email;
+        const customerSupporter = await CustomerSupporter.findOne({email:email, role:'customer_supporter'});
+
+        if(!customerSupporter) return res.status(404).json("CustomerSupporter not found");
+
+        res.status(200).json(customerSupporter);
+    }catch (error) {
+        res.status(500).json(error);
     }
-    res.status(200).json(supporter);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching customer supporter" });
-  }
+    
 };
 
-exports.addSupporter = async (req, res) => {
-  try {
-    const { firstName, lastName, email, password, confirmPassword, address, phone } = req.body;
+exports.addCustomerSupporter = async(req,res) => {
+    try {
+        const {firstName, lastName, email, password,confirmPassword,address,phone} = req.body;
 
-    const isUserExist = await User.findOne({ email });
-    if (isUserExist) {
-      return res.status(400).json({ message: "Customer supporter with this email already exists." });
+        const isUserExist = await CustomerSupporter.findOne({email});
+
+        if(isUserExist){
+            return res.status(400).json({ message: "Customer Supporter with this email already exists." });
+        }
+
+        if(password !== confirmPassword){
+            return res.status(400).json({message: "Passwords do not match"});
+        }
+
+        const hashedPassword = await bcrypt.hash(password,12);
+        
+        const customerSupporter = new CustomerSupporter({
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword,
+            profilePic : req.file ? `/uploads/${req.file.filename}` : "",
+            address,
+            phone,
+            role: 'customer_supporter'
+        })
+        await customerSupporter.save();
+
+        const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "1h" });
+        await emailSender.sendAccountCredentitals(firstName,lastName,email,address,phone,password);
+        await emailSender.sendVerificationEmail(email,token);
+        res.json({ message: "Customer Supporter SignUp successfully", customerSupporter });
+    }catch (error) {
+        res.status(500).json(error);
     }
+   
+}
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
+
+exports.updateCustomerSupporter = async(req,res) => {
+    try {
+        const {firstName, lastName,email,address,phone} = req.body;
+        const user_id = req.body.userId; 
+        
+        const existingCustomerSupporter = await CustomerSupporter.findOne({user_id});
+        if (!existingCustomerSupporter) {
+            return res.status(404).json({ message: "Inventory Manager not found" });
+        }
+
+        // If a new file is uploaded, use it; otherwise, keep the existing profilePic
+        const profilePic = req.file ? `/uploads/${req.file.filename}` : existingCustomerSupporter.profilePic;
+
+        const updateData = {
+            firstName,
+            lastName,
+            email,
+            address,
+            phone,
+            profilePic , 
+        }
+
+        const customerSupporter = await CustomerSupporter.findOneAndUpdate({user_id},updateData, {new:true});
+        if(!customerSupporter) return res.status(404).json("User not found");
+        console.log(customerSupporter);
+        res.json({ message: "Inventory Manager updated successfully", customerSupporter });
+    }catch (error) {
+        res.status(500).json(error);
     }
+   
+}
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+exports.updatePassword = async (req,res) => {
+    try{
+        const id = req.body.userId;
+        const {password, confirmPassword} = req.body;
 
-    const supporter = new User({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      profilePic: req.file ? `/uploads/${req.file.filename}` : "",
-      address,
-      phone,
-      role: 'customer_supporter',
-    });
+        if(password !== confirmPassword){
+            return res.status(400).json({message: "Passwords do not match"});
+        }
 
-    await supporter.save();
-    res.status(201).json({ message: "Customer supporter registered successfully", supporter });
-  } catch (error) {
-    console.error("Error adding customer supporter:", error);
-    res.status(500).json({ message: "Error adding customer supporter" });
-  }
-};
+        const hashedPassword = await bcrypt.hash(password,12);
+        const customerSupporter = await CustomerSupporter.findOneAndUpdate({user_id: id},{password: hashedPassword},{new:true});
 
-exports.updateSupporter = async (req, res) => {
-  try {
-    const { firstName, lastName, email, address, phone } = req.body;
-    const user_id = req.body.userId;
-
-    const existingSupporter = await User.findOne({ user_id, role: 'customer_supporter' });
-    if (!existingSupporter) {
-      return res.status(404).json({ message: "Customer supporter not found" });
+        res.status(200).json({message: "Password updated Successfully!"});
+    }catch (error) {
+        res.status(500).json(error);
     }
+}
 
-    const profilePic = req.file ? `/uploads/${req.file.filename}` : existingSupporter.profilePic;
-
-    const updateData = {
-      firstName,
-      lastName,
-      email,
-      address,
-      phone,
-      profilePic,
-    };
-
-    const supporter = await User.findOneAndUpdate({ user_id, role: 'customer_supporter' }, updateData, { new: true });
-    if (!supporter) return res.status(404).json("Customer supporter not found");
-
-    res.json({ message: "Customer supporter updated successfully", supporter });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
-
-exports.deleteSupporter = async (req, res) => {
-  try {
-    const user_id = req.query.id;
-    const supporter = await User.findOneAndDelete({ user_id, role: 'customer_supporter' });
-    if (!supporter) return res.status(404).json({ message: "Customer supporter not found" });
-    res.json({ message: "Customer supporter deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error deleting customer supporter" });
-  }
-};
+exports.deleteCustomerSupporter = async(req,res) => {
+    try {
+        const id = req.query.id;
+        const customerSupporter = await CustomerSupporter.findByIdAndDelete(id);
+        res.json({message: "CustomerSupporter deleted successfully"});
+    }catch (error) {
+        res.status(500).json({message: "Error deleting customerSupporter"});
+    }
+}
