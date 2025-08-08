@@ -8,7 +8,8 @@ const creatorRoutes = require("./Routes/creatorRoutes");
 const userRoutes = require("./Routes/userRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
 const supporterRoutes = require("./Routes/customerSupporterRoutes");
-
+const courseRoutes = require("./Routes/coursesRoutes");
+const lessonRoutes = require("./Routes/lessonRouts");
 
 
 
@@ -18,7 +19,8 @@ router.use("/learners", learnerRoutes);
 router.use("/creators", creatorRoutes);
 router.use("/admins", adminRoutes);
 router.use("/supporters", supporterRoutes);
-
+router.use("/courses", courseRoutes);
+router.use("/lessons", lessonRoutes);
 
 
 
