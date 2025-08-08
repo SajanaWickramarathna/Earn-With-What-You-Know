@@ -26,7 +26,7 @@ export default function Sidebar() {
   const [userData, setUserData] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [isLoading, setIsLoading] = useState(true);
-  const [notificationCount, setNotificationCount] = useState(0); // State for notification count
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -56,20 +56,6 @@ export default function Sidebar() {
     }
   };
 
-  const fetchNotifications = async (userId) => {
-    try {
-      const res = await api.get(
-        `/notifications/user/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const unreadCount = res.data.filter((n) => !n.read).length;
-      setNotificationCount(unreadCount);
-    } catch (err) {
-      console.error("Error fetching notifications:", err);
-    }
-  };
 
   useEffect(() => {
     if (token) {
@@ -78,17 +64,6 @@ export default function Sidebar() {
       setIsLoading(false);
     }
   }, [token, navigate]);
-
-  useEffect(() => {
-    if (userData && userData.user_id) {
-      fetchNotifications(userData.user_id);
-      const interval = setInterval(
-        () => fetchNotifications(userData.user_id),
-        10000
-      ); // Fetch every 10 seconds
-      return () => clearInterval(interval);
-    }
-  }, [userData, token]); // Add token to dependency array for re-fetch on token change
 
   const isDropdownActive = (items) => {
     return items.some((item) => location.pathname === item.to);
@@ -102,69 +77,11 @@ export default function Sidebar() {
       type: "link",
     },
     {
-      name: "Shop",
-      icon: <StoreIcon />,
-      to: "/shop",
-      type: "link",
-    },
-    {
       name: "Dashboard",
       icon: <DashboardIcon />,
       to: "/admin-dashboard",
       type: "link",
     },
-    {
-      name: "Notifications", // Added Notifications item
-      icon: <NotificationIcon />,
-      to: "/admin-dashboard/notifications",
-      type: "link",
-    },
-    {
-      name: "Manage Users",
-      icon: <PeopleIcon />,
-      type: "dropdown",
-      dropdownKey: "manage_users",
-      items: [
-        { name: "Customers", to: "/admin-dashboard/users/customers" },
-        { name: "Supporters", to: "/admin-dashboard/users/supporters" },
-        { name: "Admins", to: "/admin-dashboard/users/admins" },
-      ],
-    },
-    {
-      name: "Inventory",
-      icon: <InventoryIcon />,
-      type: "dropdown",
-      dropdownKey: "inventory",
-      items: [
-        { name: "Add Product", to: "/admin-dashboard/addproduct" },
-        { name: "Products", to: "/admin-dashboard/products" },
-        { name: "Categories", to: "/admin-dashboard/category" },
-        { name: "Brands", to: "/admin-dashboard/brands" },
-      ],
-    },
-    {
-      name: "Orders",
-      icon: <ShoppingCartIcon />,
-      to: "/admin-dashboard/orders/orders",
-      type: "link",
-    },
-    {
-      name: "Delivery",
-      to: "/admin-dashboard/delivery",
-      icon: <LocalShippingIcon />,
-      type: "link",
-    },
-    {
-      name: "Analytics",
-      icon: <AnalyticsIcon />,
-      type: "dropdown",
-      dropdownKey: "analytics",
-      items: [
-        { name: "Users", to: "/admin-dashboard/analytics/users" },
-        { name: "Orders", to: "/admin-dashboard/analytics/orders" },
-      ],
-    },
-    { type: "divider" },
   
     {
       name: "Settings",
