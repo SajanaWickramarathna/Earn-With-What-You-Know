@@ -14,7 +14,7 @@ exports.sendVerificationEmail = async (email, token) => {
     const mailOptions = {
         from:  `"CS Drop" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'Verify your CS Drop account',
+        subject: 'Verify your EWWYK account',
         html: `<h3>Click the link below to verify your email:</h3>
            <a href=${verificationLink}>${verificationLink}</a>`,
     }
@@ -23,10 +23,10 @@ exports.sendVerificationEmail = async (email, token) => {
 
 exports.sendLearnerAccountCredentials = async (firstName, lastName, email, address, phone, password) => {
     const mailOptions = {
-        from: `"CS Drop - Learner Support" <${process.env.EMAIL_USER}>`, // You can differentiate the 'from' name
+        from: `"EWWYK - Learner Support" <${process.env.EMAIL_USER}>`, // You can differentiate the 'from' name
         to: email,
-        subject: "Your CS Drop Learner Account Information", // Specific subject
-        html: `<h1>Welcome to CS Drop as a Learner!</h1><br><h3>Account Information</h3>
+        subject: "Your EWWYK Learner Account Information", // Specific subject
+        html: `<h1>Welcome to EWWYK as a Learner!</h1><br><h3>Account Information</h3>
                <br><p><b>Name: </b> ${firstName} ${lastName}</p>
                <p><b>Email: </b> ${email}</p>
                <p><b>Address: </b> ${address}</p>
@@ -42,10 +42,10 @@ exports.sendLearnerAccountCredentials = async (firstName, lastName, email, addre
 
 exports.sendCreatorAccountCredentials = async (firstName, lastName, email, address, phone, password) => {
     const mailOptions = {
-        from: `"CS Drop - Creator Support" <${process.env.EMAIL_USER}>`, // You can differentiate the 'from' name
+        from: `"EWWYK - Creator Support" <${process.env.EMAIL_USER}>`, // You can differentiate the 'from' name
         to: email,
-        subject: "Your CS Drop Creator Account Information", // Specific subject
-        html: `<h1>Welcome to CS Drop as a Creator!</h1><br><h3>Account Information</h3>
+        subject: "Your EWWYK Creator Account Information", // Specific subject
+        html: `<h1>Welcome to EWWYK as a Creator!</h1><br><h3>Account Information</h3>
                <br><p><b>Name: </b> ${firstName} ${lastName}</p>
                <p><b>Email: </b> ${email}</p>
                <p><b>Address: </b> ${address}</p>
@@ -60,9 +60,9 @@ exports.sendCreatorAccountCredentials = async (firstName, lastName, email, addre
 exports.sendResetPassword = async (email, token) => {
     const resetLink = `${process.env.FRONTEND_URL}/reset/${token}`;
     const mailOptions = {
-        from:  `"CS Drop" <${process.env.EMAIL_USER}>`,
+        from:  `"EWWYK" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'Reset password of your CS Drop account',
+        subject: 'Reset password of your EWWYK account',
         html: `<h3>Click the link below to reset your passwrod:</h3>
            <a href=${resetLink}>${resetLink}</a>`,
     }

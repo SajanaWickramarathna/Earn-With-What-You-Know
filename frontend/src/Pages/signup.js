@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { api } from "../api";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import Nav from "../components/navigation";
-import Swal from 'sweetalert2';
-import { FiUser, FiMail, FiPhone, FiHome, FiLock, FiImage } from 'react-icons/fi';
-import { RingLoader } from 'react-spinners';
+import Swal from "sweetalert2";
+import {
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiHome,
+  FiLock,
+  FiImage,
+} from "react-icons/fi";
+import { RingLoader } from "react-spinners";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -15,6 +22,7 @@ export default function SignUp() {
     address: "",
     password: "",
     cpassword: "",
+    role: "learner", // default role
   });
 
   const [image, setImage] = useState(null);
@@ -57,15 +65,18 @@ export default function SignUp() {
       formDataToSend.append("address", formData.address);
       formDataToSend.append("password", formData.password);
       formDataToSend.append("confirmPassword", formData.cpassword);
+      formDataToSend.append("role", formData.role);
       if (image) {
         formDataToSend.append("profile_image", image);
       }
 
-      const response = await api.post(
-        "/customers/signup", 
-        formDataToSend, 
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      // ✅ pick correct endpoint
+      const endpoint =
+        formData.role === "learner" ? "/learners/signup" : "/creators/signup";
+
+      const response = await api.post(endpoint, formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       if (response.status === 200) {
         setSuccess("Registration successful!");
@@ -74,12 +85,13 @@ export default function SignUp() {
           text: "You've successfully registered! Activation link sent to your email.",
           icon: "success",
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         setTimeout(() => navigate("/signin"), 2000);
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Registration failed. Please try again.";
+      const errorMessage =
+        err.response?.data?.message || "Registration failed. Please try again.";
       setError(errorMessage);
       Swal.fire({
         title: "Error!",
@@ -93,12 +105,13 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
           {/* Auth Header */}
           <div className="bg-gradient-to-r from-purple-600 to-purple-800 p-6 text-center">
-            <h1 className="text-2xl font-bold text-white">Create Your Account</h1>
+            <h1 className="text-2xl font-bold text-white">
+              Create Your Account
+            </h1>
             <p className="text-purple-100 mt-1">Join us to get started</p>
           </div>
 
@@ -119,7 +132,10 @@ export default function SignUp() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* First Name */}
                 <div className="space-y-1">
-                  <label htmlFor="fname" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="fname"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     First Name
                   </label>
                   <div className="relative">
@@ -141,7 +157,10 @@ export default function SignUp() {
 
                 {/* Last Name */}
                 <div className="space-y-1">
-                  <label htmlFor="lname" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="lname"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Last Name
                   </label>
                   <div className="relative">
@@ -163,7 +182,10 @@ export default function SignUp() {
 
                 {/* Email */}
                 <div className="space-y-1">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Email Address
                   </label>
                   <div className="relative">
@@ -185,7 +207,10 @@ export default function SignUp() {
 
                 {/* Phone */}
                 <div className="space-y-1">
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Phone Number
                   </label>
                   <div className="relative">
@@ -209,7 +234,10 @@ export default function SignUp() {
 
                 {/* Address */}
                 <div className="space-y-1 md:col-span-2">
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="address"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Address
                   </label>
                   <div className="relative">
@@ -228,10 +256,32 @@ export default function SignUp() {
                     />
                   </div>
                 </div>
+                {/* Role Selection */}
+                <div className="space-y-1 md:col-span-2">
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Select Role
+                  </label>
+                  <select
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  >
+                    <option value="learner">Learner</option>
+                    <option value="creator">Creator</option>
+                  </select>
+                </div>
 
                 {/* Profile Image */}
                 <div className="space-y-1 md:col-span-2">
-                  <label htmlFor="profile_image" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="profile_image"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Profile Image
                   </label>
                   <div className="relative">
@@ -251,7 +301,10 @@ export default function SignUp() {
 
                 {/* Password */}
                 <div className="space-y-1">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Password
                   </label>
                   <div className="relative">
@@ -269,12 +322,17 @@ export default function SignUp() {
                       required
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Minimum 8 characters
+                  </p>
                 </div>
 
                 {/* Confirm Password */}
                 <div className="space-y-1">
-                  <label htmlFor="cpassword" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="cpassword"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Confirm Password
                   </label>
                   <div className="relative">
@@ -315,9 +373,9 @@ export default function SignUp() {
             {/* Sign In Link */}
             <div className="mt-6 text-center text-sm">
               <p className="text-gray-600">
-                Already have an account?{' '}
-                <a 
-                  href="/signin" 
+                Already have an account?{" "}
+                <a
+                  href="/signin"
                   className="font-medium text-purple-600 hover:text-purple-500 hover:underline"
                 >
                   Sign in
