@@ -14,6 +14,7 @@ const courseSchema = new mongoose.Schema({
   thumbnail_url: String,
   lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
   resources: [String],
+  
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   purchase_count: { type: Number, default: 0 },
   average_rating: { type: Number, default: 0 },

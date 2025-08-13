@@ -3,6 +3,7 @@ import Sidebar from "../Creator/components/sidebar";
 
 import Dashboard from "../Creator/Pages/dashboard";
 import Profile from "../Creator/Pages/profile";
+import AddCourse from "../Creator/Pages/addCourse";
 
 export default function CreatorDashboard() {
   return (
@@ -17,6 +18,7 @@ export default function CreatorDashboard() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/add-course" element={<AddCourse />} />
         </Routes>
       </div>
     </div>

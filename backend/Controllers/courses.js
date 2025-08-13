@@ -1,10 +1,20 @@
 const Course = require('../Models/courses');
 const Lesson = require('../Models/lessons');
+const User = require('../Models/user');
 
 // Create a new course
 exports.createCourse = async (req, res) => {
   try {
-    const course = new Course(req.body);
+    const creatorUser = await User.findOne({ user_id: req.user.id }); // numeric match
+    if (!creatorUser) {
+      return res.status(404).json({ error: 'Creator not found' });
+    }
+
+    const course = new Course({
+      ...req.body,
+      creator: creatorUser._id // ✅ now ObjectId
+    });
+
     await course.save();
     res.status(201).json(course);
   } catch (err) {
