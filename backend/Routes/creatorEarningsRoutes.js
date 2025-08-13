@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getEarnings, requestWithdrawal } = require('../Controllers/creatoEarning');
+const { getEarnings, requestWithdrawal } = require('../Controllers/createEarning');
 const authMiddleware = require('../middleware/authMiddleware'); // ensure logged-in creator
 
 router.use(authMiddleware);
