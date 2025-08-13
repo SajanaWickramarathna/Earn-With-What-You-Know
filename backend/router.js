@@ -10,7 +10,7 @@ const adminRoutes = require("./Routes/adminRoutes");
 const supporterRoutes = require("./Routes/customerSupporterRoutes");
 const courseRoutes = require("./Routes/coursesRoutes");
 const lessonRoutes = require("./Routes/lessonRouts");
-
+const creatorEarningsRoutes = require("./Routes/creatorEarningsRoutes");
 
 
 router.use("/users", userRoutes);
@@ -20,7 +20,7 @@ router.use("/admins", adminRoutes);
 router.use("/supporters", supporterRoutes);
 router.use("/courses", courseRoutes);
 router.use("/lessons", lessonRoutes);
-
+router.use("/creator/earnings", creatorEarningsRoutes); // Creator earnings routes
 
 
 module.exports = router;
