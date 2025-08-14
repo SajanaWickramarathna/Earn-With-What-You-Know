@@ -35,15 +35,24 @@ exports.getAllCourses = async (req, res) => {
 };
 
 // Get course by `course_id`
+
 exports.getCourseById = async (req, res) => {
   try {
-    const course = await Course.findOne({ course_id: req.params.id }).populate('lessons');
+    const course = await Course.findOne({ course_id: req.params.id })
+      .populate({
+        path: 'lessons',
+        select: 'lesson_id title description video_url resources',
+      }); // populate lessons
+
     if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    // Send all course details
     res.json(course);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get all courses for the logged-in creator
 exports.getMyCourses = async (req, res) => {

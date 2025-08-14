@@ -5,6 +5,7 @@ import Dashboard from "../Creator/Pages/dashboard";
 import Profile from "../Creator/Pages/profile";
 import AddCourse from "../Creator/Pages/Courses/addCourse";
 import MyCourses from "../Creator/Pages/Courses/courses";
+import ViewCourse from "../Creator/Pages/Courses/viewcourse";
 
 export default function CreatorDashboard() {
   return (
@@ -21,6 +22,7 @@ export default function CreatorDashboard() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/add-course" element={<AddCourse />} />
           <Route path="/my-courses" element={<MyCourses />} />
+          <Route path="/view-course/:id" element={<ViewCourse />} />
         </Routes>
       </div>
     </div>
