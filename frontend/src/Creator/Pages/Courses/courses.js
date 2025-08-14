@@ -1,0 +1,112 @@
+// src/pages/creator/MyCourses.js
+import React, { useEffect, useState } from 'react';
+import { Container, Grid, Card, CardContent, CardMedia, Typography, Button, Box, CircularProgress, Snackbar, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import {api } from '../../../api'; 
+
+const MyCourses = () => {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem('token'); // your auth token
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const res = await api.get('/courses/my-courses', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCourses(res.data);
+    } catch (err) {
+      console.error(err);
+      setSnackbar({ open: true, message: 'Failed to load courses', severity: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/creator/edit-course/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this course?')) return;
+    try {
+      await api.delete(`/courses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCourses(courses.filter(c => c.course_id !== id));
+      setSnackbar({ open: true, message: 'Course deleted', severity: 'success' });
+    } catch (err) {
+      console.error(err);
+      setSnackbar({ open: true, message: 'Failed to delete course', severity: 'error' });
+    }
+  };
+
+  return (
+    <Container sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        My Courses
+      </Typography>
+
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+          <CircularProgress />
+        </Box>
+      ) : courses.length === 0 ? (
+        <Typography>No courses found. Start creating!</Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {courses.map(course => (
+            <Grid item xs={12} sm={6} md={4} key={course.course_id}>
+              <Card>
+                {course.thumbnail_url && (
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={course.thumbnail_url}
+                    alt={course.title}
+                  />
+                )}
+                <CardContent>
+                  <Typography variant="h6">{course.title}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {course.description?.substring(0, 80)}...
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Price: {course.price} | Language: {course.language} | Lessons: {course.lessons.length}
+                  </Typography>
+                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                    <Button variant="contained" size="small" onClick={() => handleEdit(course.course_id)}>
+                      Edit
+                    </Button>
+                    <Button variant="outlined" size="small" color="error" onClick={() => handleDelete(course.course_id)}>
+                      Delete
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Container>
+  );
+};
+
+export default MyCourses;

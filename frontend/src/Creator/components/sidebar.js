@@ -118,7 +118,7 @@ export default function CreatorSidebar() {
             },
             {
               name: "My Courses",
-              path: "/creator-dashboard/courses",
+              path: "/creator-dashboard/my-courses",
               icon: <LibraryBooksIcon />,
             },
             {

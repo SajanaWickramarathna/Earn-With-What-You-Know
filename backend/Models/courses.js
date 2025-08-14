@@ -9,12 +9,15 @@ const courseSchema = new mongoose.Schema({
   category: String,
   price: { type: Number, default: 0 },
   language: { type: String, enum: ['Sinhala', 'Tamil', 'English'], required: true },
-  creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+
+ 
+  creator_id: { type: Number, required: true }, // numeric ID for quick filtering
+
   teaser_url: String,
   thumbnail_url: String,
   lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
   resources: [String],
-  
+
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   purchase_count: { type: Number, default: 0 },
   average_rating: { type: Number, default: 0 },
