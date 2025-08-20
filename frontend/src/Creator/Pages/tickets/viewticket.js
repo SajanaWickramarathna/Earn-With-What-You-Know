@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../../api";
 import { useParams, useNavigate } from "react-router-dom";
-import TicketChat from "../../../pages/chat"; // Correct path to TicketChat
+import TicketChat from "../../../Pages/chat"; // Correct path to TicketChat
 
 import {
   Box,
