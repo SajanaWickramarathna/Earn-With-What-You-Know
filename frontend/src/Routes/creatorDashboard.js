@@ -30,7 +30,7 @@ export default function CreatorDashboard() {
           <Route path="/view-course/:id" element={<ViewCourse />} />
           <Route path="/edit-course/:id" element={<EditCourse />} />
           <Route path="/tickets" element={<Tickets />} />
-          <Route path="/view-ticket/:id" element={<ViweTicket />} />
+          <Route path="/viewticket/:id" element={<ViweTicket />} />
           <Route path="/addticket" element={<AddTicket />} />
           <Route path="/notifications" element={<Notification />} />
         </Routes>

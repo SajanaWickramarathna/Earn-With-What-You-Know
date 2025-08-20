@@ -238,7 +238,7 @@ function TicketUserDash() {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => navigate('/customer-dashboard/addticket', { state: { data: userData } })}
+          onClick={() => navigate('/creator-dashboard/addticket', { state: { data: userData } })}
         >
           Create New Ticket
         </Button>
@@ -280,7 +280,7 @@ function TicketUserDash() {
                           color="primary"
                           size="small"
                           startIcon={<ChatIcon />}
-                          onClick={() => navigate(`/customer-dashboard/viewticket/${ticket.ticket_id}`, { state: { data: userData } })}
+                          onClick={() => navigate(`/creator-dashboard/viewticket/${ticket.ticket_id}`, { state: { data: userData } })}
                         >
                           View
                         </Button>
@@ -309,7 +309,7 @@ function TicketUserDash() {
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => navigate('/customer-dashboard/addticket', { state: { data: userData } })}
+                        onClick={() => navigate('/creator-dashboard/addticket', { state: { data: userData } })}
                         sx={{ mt: 2 }}
                       >
                         Create Your First Ticket
