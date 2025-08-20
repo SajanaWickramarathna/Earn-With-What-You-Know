@@ -84,8 +84,8 @@ const connectDB = async () => {
 
 connectDB();
 
-// Start Server (Listen on the HTTP server, not just the Express app)
-const PORT = process.env.PORT || 3001; // Ensure this matches your frontend socket URL
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+// Start Server (IMPORTANT: use server.listen instead of app.listen)
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`🚀 Server + Socket.IO running on port ${PORT}`);
 });
