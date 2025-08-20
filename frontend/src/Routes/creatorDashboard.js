@@ -10,6 +10,7 @@ import EditCourse from "../Creator/Pages/Courses/editcourses";
 import Tickets from "../Creator/Pages/tickets/tickets";
 import ViweTicket from "../Creator/Pages/tickets/viewticket";
 import AddTicket from "../Creator/Pages/tickets/addticket";
+import Notification from "../Creator/Pages/notifications";
 
 export default function CreatorDashboard() {
   return (
@@ -30,7 +31,8 @@ export default function CreatorDashboard() {
           <Route path="/edit-course/:id" element={<EditCourse />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/view-ticket/:id" element={<ViweTicket />} />
-          <Route path="/add-ticket" element={<AddTicket />} />
+          <Route path="/addticket" element={<AddTicket />} />
+          <Route path="/notifications" element={<Notification />} />
         </Routes>
       </div>
     </div>
