@@ -14,7 +14,7 @@ const creatorEarningsRoutes = require("./Routes/creatorEarningsRoutes");
 const creatorAnalyticsRoutes = require("./Routes/creatorAnalyticsRoutes");
 const orders = require("./Routes/orderRoutes");
 const tickets = require("./Routes/ticketroute");
-
+const notification = require("./Routes/notificationRoutes");
 
 
 
@@ -29,6 +29,6 @@ router.use("/creator/earnings", creatorEarningsRoutes); // Creator earnings rout
 router.use("/creator/analytics", creatorAnalyticsRoutes); // Creator analytics routes
 router.use("/orders", orders); // Order routes
 router.use("/tickets", tickets); // Ticket routes
-
+router.use("/notifications", notification); // Notification routes
 
 module.exports = router;
