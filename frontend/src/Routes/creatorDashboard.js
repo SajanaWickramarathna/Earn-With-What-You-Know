@@ -7,6 +7,9 @@ import AddCourse from "../Creator/Pages/Courses/addCourse";
 import MyCourses from "../Creator/Pages/Courses/courses";
 import ViewCourse from "../Creator/Pages/Courses/viewcourse";
 import EditCourse from "../Creator/Pages/Courses/editcourses";
+import Tickets from "../Creator/Pages/tickets/tickets";
+import ViweTicket from "../Creator/Pages/tickets/viewticket";
+import AddTicket from "../Creator/Pages/tickets/addticket";
 
 export default function CreatorDashboard() {
   return (
@@ -25,6 +28,9 @@ export default function CreatorDashboard() {
           <Route path="/my-courses" element={<MyCourses />} />
           <Route path="/view-course/:id" element={<ViewCourse />} />
           <Route path="/edit-course/:id" element={<EditCourse />} />
+          <Route path="/tickets" element={<Tickets />} />
+          <Route path="/view-ticket/:id" element={<ViweTicket />} />
+          <Route path="/add-ticket" element={<AddTicket />} />
         </Routes>
       </div>
     </div>
