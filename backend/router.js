@@ -15,7 +15,7 @@ const creatorAnalyticsRoutes = require("./Routes/creatorAnalyticsRoutes");
 const orders = require("./Routes/orderRoutes");
 const tickets = require("./Routes/ticketroute");
 const notification = require("./Routes/notificationRoutes");
-
+const chat = require("./Routes/chatRoute");
 
 
 router.use("/users", userRoutes);
@@ -30,5 +30,6 @@ router.use("/creator/analytics", creatorAnalyticsRoutes); // Creator analytics r
 router.use("/orders", orders); // Order routes
 router.use("/tickets", tickets); // Ticket routes
 router.use("/notifications", notification); // Notification routes
+router.use("/chats", chat); // Chat routes
 
 module.exports = router;
