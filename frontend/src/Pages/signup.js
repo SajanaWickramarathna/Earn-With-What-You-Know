@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { api } from "../api";
 import { useNavigate } from "react-router-dom";
-import Nav from "../components/navigation";
 import Swal from "sweetalert2";
 import {
   FiUser,

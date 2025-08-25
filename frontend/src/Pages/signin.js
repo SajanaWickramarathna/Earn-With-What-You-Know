@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
-import Nav from "../components/navigation";
+
 import Swal from "sweetalert2";
 import { FiMail, FiLock, FiLogIn } from 'react-icons/fi';
 import { RingLoader } from 'react-spinners';
@@ -69,7 +69,7 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Nav />
+      
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
           {/* Auth Header */}
