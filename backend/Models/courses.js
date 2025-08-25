@@ -14,7 +14,17 @@ const courseSchema = new mongoose.Schema({
 
   teaser_url: String,
   thumbnail_url: String,
-  lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
+   lessons: [
+    {
+      lesson_id: Number,
+      title: String,
+      video_url: String,
+      duration: Number,
+      price: Number,
+      order: Number,
+      is_preview: { type: Boolean, default: false }
+    }
+  ],
   resources: [String],
 
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },

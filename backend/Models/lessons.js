@@ -4,7 +4,7 @@ const Counter = require('./counter'); // Import counter
 
 const lessonSchema = new mongoose.Schema({
   lesson_id: { type: Number, unique: true },
-  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  course_id: { type: Number, required: true }, // link to course by numeric ID
   title: String,
   video_url: { type: String, required: true },
   duration: Number, // in seconds
