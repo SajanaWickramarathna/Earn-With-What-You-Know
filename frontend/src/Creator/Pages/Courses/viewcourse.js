@@ -1,4 +1,3 @@
-// src/pages/creator/Courses/viewcourse.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
@@ -10,6 +9,8 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
+  Grid,
+  Chip,
 } from "@mui/material";
 import { api } from "../../../api";
 
@@ -44,52 +45,115 @@ const ViewCourse = () => {
       }
     };
     fetchCourse();
-  }, [id]);
+  }, [id, token]);
 
   if (loading)
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
         <CircularProgress />
       </Box>
     );
 
   if (!course)
     return (
-      <Typography variant="h6" sx={{ mt: 4 }}>
+      <Typography variant="h6" sx={{ mt: 4, textAlign: "center" }}>
         Course not found
       </Typography>
     );
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
+    <Container sx={{ mt: 4, mb: 6 }}>
+      {/* Course Title */}
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ fontWeight: "bold", textAlign: "center", mb: 4 }}
+      >
         {course.title}
       </Typography>
 
-      {course.thumbnail_url && (
-        <Card sx={{ maxWidth: 600, mb: 2 }}>
-          <CardMedia
-            component="img"
-            height="300"
-            image={course.thumbnail_url}
-            alt={course.title}
-          />
-        </Card>
-      )}
+      {/* Media Section */}
+<Grid container spacing={4} sx={{ mb: 4 }} alignItems="stretch">
+  {course.thumbnail_url && (
+    <Grid item xs={12} md={6}>
+      <Card
+        sx={{
+          width: "100%",
+          height: { xs: 250, md: 300 },
+          borderRadius: 3,
+          overflow: "hidden",
+          boxShadow: 4,
+        }}
+      >
+        <CardMedia
+          component="img"
+          image={course.thumbnail_url}
+          alt={course.title}
+          sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </Card>
+    </Grid>
+  )}
 
-      <Typography variant="body1" gutterBottom>
-        {course.description}
-      </Typography>
+  {course.teaser_url && (
+    <Grid item xs={12} md={6}>
+      <Card
+        sx={{
+          width: "100%",
+          height: { xs: 250, md: 300 },
+          borderRadius: 3,
+          p: 1,
+          boxShadow: 4,
+        }}
+      >
+        <Typography variant="h6" gutterBottom sx={{ mb: 1 }}>
+          Teaser Video
+        </Typography>
+        <Box
+          component="video"
+          src={course.teaser_url}
+          controls
+          sx={{
+            width: "100%",
+            height: "calc(100% - 40px)", // leave space for title
+            borderRadius: 2,
+            objectFit: "cover",
+          }}
+        />
+      </Card>
+    </Grid>
+  )}
+</Grid>
 
-      <Typography variant="body2" color="text.secondary">
-        Price: {course.price} | Language: {course.language}
-      </Typography>
+      {/* Course Description */}
+      <Card sx={{ p: 4, mb: 4, borderRadius: 2, boxShadow: 4 }}>
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", mb: 2 }}>
+          Description
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 3 }}>
+          {course.description}
+        </Typography>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-        Purchase Count: {course.purchase_count} | Average Rating:{" "}
-        {course.average_rating} | Reviews: {course.review_count}
-      </Typography>
+        <Grid container spacing={2}>
+          <Grid item>
+            <Chip label={`Price: $${course.price}`} color="primary" />
+          </Grid>
+          <Grid item>
+            <Chip label={`Language: ${course.language}`} color="secondary" />
+          </Grid>
+          <Grid item>
+            <Chip label={`Purchases: ${course.purchase_count}`} color="success" />
+          </Grid>
+          <Grid item>
+            <Chip label={`Rating: ${course.average_rating}`} color="info" />
+          </Grid>
+          <Grid item>
+            <Chip label={`Reviews: ${course.review_count}`} color="warning" />
+          </Grid>
+        </Grid>
+      </Card>
 
+      {/* Snackbar for errors */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
