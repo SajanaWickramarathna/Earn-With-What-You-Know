@@ -141,7 +141,6 @@ const AddCourse = () => {
           multiline
           rows={4}
         />
-        <TextField label="Category" name="category" value={formData.category} onChange={handleChange} required />
         <TextField label="Price" name="price" type="number" value={formData.price} onChange={handleChange} />
         <TextField select label="Language" name="language" value={formData.language} onChange={handleChange}>
           {["Sinhala", "Tamil", "English"].map((lang) => (

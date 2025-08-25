@@ -6,7 +6,6 @@ const courseSchema = new mongoose.Schema({
   course_id: { type: Number, unique: true },
   title: { type: String, required: true },
   description: String,
-  category: String,
   price: { type: Number, default: 0 },
   language: { type: String, enum: ['Sinhala', 'Tamil', 'English'], required: true },
 
