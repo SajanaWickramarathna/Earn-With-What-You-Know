@@ -1,4 +1,3 @@
-// src/pages/creator/EditCourse.js
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -10,12 +9,14 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  Card,
+  CardMedia,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../../api";
 
 const EditCourse = () => {
-  const { id } = useParams(); // course_id from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -25,9 +26,14 @@ const EditCourse = () => {
     price: "",
     language: "",
     thumbnail_url: "",
+    teaser_url: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [teaserFile, setTeaserFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState("");
+  const [teaserPreview, setTeaserPreview] = useState("");
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -45,13 +51,9 @@ const EditCourse = () => {
       const res = await api.get(`/courses/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCourse({
-        title: res.data.title || "",
-        description: res.data.description || "",
-        price: res.data.price || "",
-        language: res.data.language || "",
-        thumbnail_url: res.data.thumbnail_url || "",
-      });
+      setCourse(res.data);
+      setThumbnailPreview(res.data.thumbnail_url || "");
+      setTeaserPreview(res.data.teaser_url || "");
     } catch (err) {
       console.error(err);
       setSnackbar({
@@ -68,18 +70,67 @@ const EditCourse = () => {
     setCourse({ ...course, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    if (files.length === 0) return;
+    const file = files[0];
+
+    if (name === "thumbnail") {
+      setThumbnailFile(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+    } else if (name === "teaser") {
+      setTeaserFile(file);
+      setTeaserPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+
     try {
-      await api.put(`/courses/${id}`, course, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Update course details
+      await api.put(
+        `/courses/${id}`,
+        {
+          title: course.title,
+          description: course.description,
+          price: course.price,
+          language: course.language,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Upload new thumbnail if selected
+      if (thumbnailFile) {
+        const fd = new FormData();
+        fd.append("thumbnail", thumbnailFile);
+        await api.post(`/courses/upload-thumbnail/${id}`, fd, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+
+      // Upload new teaser if selected
+      if (teaserFile) {
+        const fd = new FormData();
+        fd.append("teaser", teaserFile);
+        await api.post(`/courses/upload-teaser/${id}`, fd, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+
       setSnackbar({
         open: true,
         message: "Course updated successfully",
         severity: "success",
       });
+
       navigate("/creator-dashboard/my-courses");
     } catch (err) {
       console.error(err);
@@ -106,9 +157,10 @@ const EditCourse = () => {
       ) : (
         <Box
           component="form"
-          sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}
+          sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 3 }}
           onSubmit={handleSubmit}
         >
+          {/* Title, Description, Price, Language */}
           <TextField
             label="Title"
             name="title"
@@ -141,16 +193,62 @@ const EditCourse = () => {
             select
             required
           >
-            <MenuItem value="English">English</MenuItem>
-            <MenuItem value="Sinhala">Sinhala</MenuItem>
-            <MenuItem value="Tamil">Tamil</MenuItem>
+            {["English", "Sinhala", "Tamil"].map((lang) => (
+              <MenuItem key={lang} value={lang}>
+                {lang}
+              </MenuItem>
+            ))}
           </TextField>
-          <TextField
-            label="Thumbnail URL"
-            name="thumbnail_url"
-            value={course.thumbnail_url}
-            onChange={handleChange}
-          />
+
+          {/* Thumbnail */}
+          <Box>
+            <Typography sx={{ mb: 1 }}>Thumbnail</Typography>
+            {thumbnailPreview && (
+              <Card sx={{ mb: 1, width: 200, height: 120, overflow: "hidden" }}>
+                <CardMedia
+                  component="img"
+                  src={thumbnailPreview}
+                  alt="Thumbnail"
+                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </Card>
+            )}
+            <Button variant="contained" component="label">
+              Change Thumbnail
+              <input
+                type="file"
+                hidden
+                name="thumbnail"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </Button>
+          </Box>
+
+          {/* Teaser Video */}
+          <Box>
+            <Typography sx={{ mb: 1 }}>Teaser Video</Typography>
+            {teaserPreview && (
+              <Card sx={{ mb: 1, width: "100%", height: 250 }}>
+                <Box
+                  component="video"
+                  src={teaserPreview}
+                  controls
+                  sx={{ width: "100%", height: "100%", borderRadius: 1 }}
+                />
+              </Card>
+            )}
+            <Button variant="contained" component="label">
+              Change Teaser
+              <input
+                type="file"
+                hidden
+                name="teaser"
+                accept="video/*"
+                onChange={handleFileChange}
+              />
+            </Button>
+          </Box>
 
           <Button
             type="submit"
