@@ -1,9 +1,20 @@
 const Lesson = require('../Models/lessons');
 
-// Create a lesson
+// Create a lesson under a course
 exports.createLesson = async (req, res) => {
   try {
-    const lesson = new Lesson(req.body);
+    const { course_id, title, video_url, duration, price, order, is_preview } = req.body;
+
+    const lesson = new Lesson({
+      course_id,
+      title,
+      video_url,
+      duration,
+      price,
+      order,
+      is_preview,
+    });
+
     await lesson.save();
     res.status(201).json(lesson);
   } catch (err) {
@@ -11,23 +22,18 @@ exports.createLesson = async (req, res) => {
   }
 };
 
-// Get all lessons for a course by `course_id`
+// Get all lessons for a course
 exports.getLessonsByCourse = async (req, res) => {
   try {
-    const course_id = req.params.courseId;
-    const lessons = await Lesson.find().populate({
-      path: 'course',
-      match: { course_id }
-    }).sort('order');
-
-    const filtered = lessons.filter(lesson => lesson.course); // Only those matching course
-    res.json(filtered);
+    const course_id = parseInt(req.params.courseId, 10);
+    const lessons = await Lesson.find({ course_id }).sort({ order: 1 });
+    res.json(lessons);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Get lesson by `lesson_id`
+// Get lesson by lesson_id
 exports.getLessonById = async (req, res) => {
   try {
     const lesson = await Lesson.findOne({ lesson_id: req.params.id });
@@ -38,10 +44,14 @@ exports.getLessonById = async (req, res) => {
   }
 };
 
-// Update lesson by `lesson_id`
+// Update lesson
 exports.updateLesson = async (req, res) => {
   try {
-    const updated = await Lesson.findOneAndUpdate({ lesson_id: req.params.id }, req.body, { new: true });
+    const updated = await Lesson.findOneAndUpdate(
+      { lesson_id: req.params.id },
+      req.body,
+      { new: true }
+    );
     if (!updated) return res.status(404).json({ message: 'Lesson not found' });
     res.json(updated);
   } catch (err) {
@@ -49,7 +59,7 @@ exports.updateLesson = async (req, res) => {
   }
 };
 
-// Delete lesson by `lesson_id`
+// Delete lesson
 exports.deleteLesson = async (req, res) => {
   try {
     const deleted = await Lesson.findOneAndDelete({ lesson_id: req.params.id });

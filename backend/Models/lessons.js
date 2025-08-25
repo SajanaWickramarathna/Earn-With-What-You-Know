@@ -1,22 +1,21 @@
 // models/Lesson.js
 const mongoose = require('mongoose');
-const Counter = require('./counter'); // Import counter
+const Counter = require('./counter');
 
 const lessonSchema = new mongoose.Schema({
   lesson_id: { type: Number, unique: true },
   course_id: { type: Number, required: true }, // link to course by numeric ID
-  title: String,
+  title: { type: String, required: true },
   video_url: { type: String, required: true },
-  duration: Number, // in seconds
+  duration: Number,
   price: Number,
   order: Number,
   is_preview: { type: Boolean, default: false },
 }, { timestamps: true });
 
-// Auto-increment `lesson_id`
-lessonSchema.pre('save', async function (next) {
+// Auto-increment lesson_id
+lessonSchema.pre('save', async function(next) {
   if (!this.isNew) return next();
-
   try {
     const counter = await Counter.findOneAndUpdate(
       { name: 'lesson_id' },

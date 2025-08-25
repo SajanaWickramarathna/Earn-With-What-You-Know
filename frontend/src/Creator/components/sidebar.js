@@ -15,12 +15,16 @@ import NotificationIcon from "@mui/icons-material/Notifications";
 import TicketIcon from "@mui/icons-material/ListAltOutlined";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import SettingIcon from "@mui/icons-material/SettingsOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function CreatorSidebar() {
   const [userData, setUserData] = useState(null);
+  const [courses, setCourses] = useState([]);
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [isLoading, setIsLoading] = useState(true);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [showAddLessonDropdown, setShowAddLessonDropdown] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,6 +52,24 @@ export default function CreatorSidebar() {
     if (token) fetchUser();
     else setIsLoading(false);
   }, [token, navigate]);
+
+  // Fetch user courses for Add Lesson menu
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchCourses = async () => {
+      try {
+        const res = await api.get("/courses/my-courses", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCourses(res.data);
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+      }
+    };
+
+    fetchCourses();
+  }, [token]);
 
   // Fetch notifications
   useEffect(() => {
@@ -80,15 +102,25 @@ export default function CreatorSidebar() {
     );
   }
 
+  const menuItems = [
+    { name: "Dashboard", path: "/creator-dashboard", icon: <DashboardIcon /> },
+    { name: "Profile", path: "/creator-dashboard/profile", icon: <AccountCircleIcon /> },
+    { name: "My Courses", path: "/creator-dashboard/my-courses", icon: <LibraryBooksIcon /> },
+    { name: "Add Course", path: "/creator-dashboard/add-course", icon: <AddBoxIcon /> },
+    { name: "Lessons", path: "/creator-dashboard/lessons", icon: <VideoLibraryIcon /> },
+    { name: "Earnings", path: "/creator-dashboard/earnings", icon: <MonetizationOnIcon /> },
+    { name: "Notifications", path: "/creator-dashboard/notifications", icon: <NotificationIcon /> },
+    { name: "Tickets", path: "/creator-dashboard/tickets", icon: <TicketIcon /> },
+    { name: "Add Ticket", path: "/creator-dashboard/addticket", icon: <AddCircleOutlineIcon /> },
+  ];
+
   return (
     <div className="min-h-screen w-64 bg-gradient-to-b from-blue-50 to-white text-blue-900 flex flex-col border-r border-blue-100 shadow-sm">
       {/* Profile */}
       <div className="w-full p-6 flex flex-col items-center">
         <div className="relative mb-4">
           <img
-            src={`${api.defaults.baseURL.replace("/api", "")}${
-              userData?.profilePic
-            }`}
+            src={`${api.defaults.baseURL.replace("/api", "")}${userData?.profilePic}`}
             alt="Profile"
             className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-md"
           />
@@ -103,55 +135,9 @@ export default function CreatorSidebar() {
       <hr className="border-t border-blue-100 mx-4" />
 
       {/* Menu */}
-      <nav className="flex-1 px-4 py-6">
+      <nav className="flex-1 px-4 py-6 overflow-y-auto">
         <ul className="space-y-1">
-          {[
-            {
-              name: "Dashboard",
-              path: "/creator-dashboard",
-              icon: <DashboardIcon />,
-            },
-            {
-              name: "Profile",
-              path: "/creator-dashboard/profile",
-              icon: <AccountCircleIcon />,
-            },
-            {
-              name: "My Courses",
-              path: "/creator-dashboard/my-courses",
-              icon: <LibraryBooksIcon />,
-            },
-            {
-              name: "Add Course",
-              path: "/creator-dashboard/add-course",
-              icon: <AddBoxIcon />,
-            },
-            {
-              name: "Lessons",
-              path: "/creator-dashboard/lessons",
-              icon: <VideoLibraryIcon />,
-            },
-            {
-              name: "Earnings",
-              path: "/creator-dashboard/earnings",
-              icon: <MonetizationOnIcon />,
-            },
-            {
-              name: "Notifications",
-              path: "/creator-dashboard/notifications",
-              icon: <NotificationIcon />,
-            },
-            {
-              name: "Tickets",
-              path: "/creator-dashboard/tickets",
-              icon: <TicketIcon />,
-            },
-            {
-              name: "Add Ticket",
-              path: "/creator-dashboard/addticket",
-              icon: <AddCircleOutlineIcon />,
-            },
-          ].map((item) => (
+          {menuItems.map((item) => (
             <li key={item.name}>
               <button
                 onClick={() => handleNavigation(item.path)}
@@ -171,25 +157,37 @@ export default function CreatorSidebar() {
               </button>
             </li>
           ))}
-        </ul>
 
-        {/* Settings */}
-        <hr className="border-t border-blue-100 my-4" />
-        <ul>
+          {/* Add Lesson Dropdown */}
           <li>
             <button
-              onClick={() => handleNavigation("/creator-dashboard/settings")}
-              className={`w-full flex items-center py-3 px-4 rounded-lg transition-all duration-200 ${
-                location.pathname === "/creator-dashboard/settings"
-                  ? "bg-blue-100 text-blue-700 font-medium"
-                  : "hover:bg-blue-50 text-blue-800"
-              }`}
+              onClick={() => setShowAddLessonDropdown(!showAddLessonDropdown)}
+              className="w-full flex items-center justify-between py-3 px-4 rounded-lg hover:bg-blue-50 text-blue-800 transition-all duration-200"
             >
-              <span className="mr-3 text-blue-600">
-                <SettingIcon />
-              </span>
-              Settings
+              <div className="flex items-center">
+                <AddBoxIcon className="mr-3 text-blue-600" />
+                Add Lesson
+              </div>
+              <ExpandMoreIcon
+                className={`transition-transform ${showAddLessonDropdown ? "rotate-180" : ""}`}
+              />
             </button>
+            {showAddLessonDropdown && (
+              <ul className="ml-8 mt-1 space-y-1">
+                {courses.map((course) => (
+                  <li key={course.course_id}>
+                    <button
+                      onClick={() =>
+                        navigate(`/creator-dashboard/course/${course.course_id}/add-lesson`)
+                      }
+                      className="w-full py-2 px-4 rounded hover:bg-blue-50 text-blue-700 text-sm"
+                    >
+                      {course.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         </ul>
       </nav>
@@ -208,13 +206,9 @@ export default function CreatorSidebar() {
         </button>
 
         <footer className="mt-6 text-xs text-blue-400 text-center">
-          <p className="mb-1">
-            &copy; {new Date().getFullYear()} Earn With What You Know
-          </p>
+          <p className="mb-1">&copy; {new Date().getFullYear()} Earn With What You Know</p>
           <p>All rights reserved</p>
-          <p className="mt-2 text-blue-300">
-            Developed by Sajana Wickramarathna
-          </p>
+          <p className="mt-2 text-blue-300">Developed by Sajana Wickramarathna</p>
         </footer>
       </div>
     </div>
