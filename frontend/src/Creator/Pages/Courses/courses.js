@@ -24,8 +24,7 @@ const MyCourses = () => {
     severity: "success",
   });
   const navigate = useNavigate();
-
-  const token = localStorage.getItem("token"); // your auth token
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchCourses();
@@ -49,13 +48,8 @@ const MyCourses = () => {
     }
   };
 
-  const handleView = (id) => {
-    navigate(`/creator-dashboard/view-course/${id}`);
-  };
-
-  const handleEdit = (id) => {
-    navigate(`/creator-dashboard/edit-course/${id}`);
-  };
+  const handleView = (id) => navigate(`/creator-dashboard/view-course/${id}`);
+  const handleEdit = (id) => navigate(`/creator-dashboard/edit-course/${id}`);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
@@ -80,8 +74,8 @@ const MyCourses = () => {
   };
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
+    <Container sx={{ mt: 4, mb: 6 }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
         My Courses
       </Typography>
 
@@ -92,36 +86,74 @@ const MyCourses = () => {
       ) : courses.length === 0 ? (
         <Typography>No courses found. Start creating!</Typography>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           {courses.map((course) => (
             <Grid item xs={12} sm={6} md={4} key={course.course_id}>
-              <Card>
-                {course.thumbnail_url && (
+              <Card
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                  "&:hover": { transform: "translateY(-5px)", boxShadow: 6 },
+                }}
+              >
+                {course.thumbnail_url ? (
                   <CardMedia
                     component="img"
-                    height="140"
+                    height="180"
                     image={course.thumbnail_url}
                     alt={course.title}
+                    sx={{
+                      objectFit: "cover", // keeps aspect ratio
+                      width: "100%", // fits card width
+                      maxHeight: 180, // prevent image from stretching too tall
+                    }}
                   />
+                ) : (
+                  <Box
+                    sx={{
+                      height: 180,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      bgcolor: "grey.200",
+                      color: "grey.600",
+                    }}
+                  >
+                    No Thumbnail
+                  </Box>
                 )}
-                <CardContent>
-                  <Typography variant="h6">{course.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                  >
+                    {course.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
                     {course.description?.substring(0, 80)}...
                   </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mt: 1 }}
+                    sx={{ mb: 2 }}
                   >
-                    Price: {course.price} | Language: {course.language}
+                    Price: ${course.price} | Language: {course.language}
                   </Typography>
 
-                  <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                     <Button
                       variant="contained"
                       size="small"
                       onClick={() => handleView(course.course_id)}
+                      sx={{ flexGrow: 1 }}
                     >
                       View
                     </Button>
@@ -129,6 +161,7 @@ const MyCourses = () => {
                       variant="contained"
                       size="small"
                       onClick={() => handleEdit(course.course_id)}
+                      sx={{ flexGrow: 1 }}
                     >
                       Edit
                     </Button>
@@ -137,6 +170,7 @@ const MyCourses = () => {
                       size="small"
                       color="error"
                       onClick={() => handleDelete(course.course_id)}
+                      sx={{ flexGrow: 1 }}
                     >
                       Delete
                     </Button>
