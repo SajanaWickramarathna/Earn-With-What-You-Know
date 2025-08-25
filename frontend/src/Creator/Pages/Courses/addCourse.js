@@ -9,6 +9,7 @@ import {
   Box,
   Snackbar,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { api } from "../../../api"; // your axios instance
 import { useNavigate } from "react-router-dom";
@@ -17,91 +18,115 @@ const AddCourse = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "",
     price: 0,
     language: "English",
-    teaser_url: "",
-    thumbnail_url: "",
   });
+
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [teaserFile, setTeaserFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [teaserPreview, setTeaserPreview] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
-  // Fetch logged-in user
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await api.get("/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserData(response.data);
-      } catch (err) {
-        console.error("Failed to fetch user data", err);
-      }
-    };
-    fetchUserData();
-  }, [token]);
-
+  // Handle text input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = async (e) => {
+  // Handle file selection (preview only)
+  const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files.length === 0) return;
-
     const file = files[0];
-    try {
-      setLoading(true);
-      // Here you can implement real file upload API
-      // For now, use local URL preview
-      const url = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, [name]: url }));
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-      setSnackbar({ open: true, message: "File upload failed", severity: "error" });
-      setLoading(false);
+
+    if (name === "thumbnail") {
+      setThumbnailFile(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+    } else if (name === "teaser") {
+      setTeaserFile(file);
+      setTeaserPreview(URL.createObjectURL(file));
     }
   };
 
+  // Upload a file to server
+  const uploadFile = async (file, courseId, type) => {
+    const formDataFile = new FormData();
+    formDataFile.append(type === "thumbnail" ? "thumbnail" : "teaser", file);
+
+    const res = await api.post(`/courses/upload-${type}/${courseId}`, formDataFile, {
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+    });
+
+    return type === "thumbnail" ? res.data.thumbnail_url : res.data.teaser_url;
+  };
+
+  // Handle form submit
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!userData) {
-      setSnackbar({ open: true, message: "User data not loaded", severity: "error" });
-      return;
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    // Step 1: create course without files
+    const res = await api.post("/courses", {
+      title: formData.title,
+      description: formData.description,
+      category: formData.category,
+      price: formData.price,
+      language: formData.language
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const newCourseId = res.data.course_id;
+
+    // Step 2: upload thumbnail
+    if (thumbnailFile) {
+      const fd = new FormData();
+      fd.append("thumbnail", thumbnailFile);
+
+      await api.post(`/courses/upload-thumbnail/${newCourseId}`, fd, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+      });
     }
 
-    try {
-      setLoading(true);
-      const response = await api.post(
-        "/courses",
-        { ...formData }, // creator is set in backend via JWT
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setSnackbar({ open: true, message: "Course added successfully", severity: "success" });
-      setLoading(false);
-      navigate(`/creator-dashboard/my-courses`);
-    } catch (err) {
-      console.error(err);
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.error || "Failed to add course",
-        severity: "error",
+    // Step 3: upload teaser
+    if (teaserFile) {
+      const fd = new FormData();
+      fd.append("teaser", teaserFile);
+
+      await api.post(`/courses/upload-teaser/${newCourseId}`, fd, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
       });
-      setLoading(false);
     }
-  };
+
+    setSnackbar({ open: true, message: "Course added successfully", severity: "success" });
+    setLoading(false);
+    navigate("/creator-dashboard/my-courses");
+  } catch (err) {
+    console.error(err);
+    setSnackbar({
+      open: true,
+      message: err.response?.data?.error || "Failed to add course",
+      severity: "error",
+    });
+    setLoading(false);
+  }
+};
+
 
   return (
     <Container maxWidth="sm">
       <Typography variant="h4" sx={{ mb: 3, mt: 3 }}>
         Add New Course
       </Typography>
+
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -128,20 +153,18 @@ const AddCourse = () => {
 
         <Button variant="contained" component="label">
           Upload Teaser Video
-          <input type="file" hidden name="teaser_url" onChange={handleFileChange} />
+          <input type="file" hidden name="teaser" onChange={handleFileChange} />
         </Button>
-        {formData.teaser_url && <Typography>Teaser uploaded</Typography>}
+        {teaserPreview && <Typography>Teaser selected: {teaserFile.name}</Typography>}
 
         <Button variant="contained" component="label">
           Upload Thumbnail
-          <input type="file" hidden name="thumbnail_url" onChange={handleFileChange} />
+          <input type="file" hidden name="thumbnail" onChange={handleFileChange} />
         </Button>
-        {formData.thumbnail_url && (
-          <img src={formData.thumbnail_url} alt="Thumbnail" style={{ width: 150, marginTop: 10 }} />
-        )}
+        {thumbnailPreview && <img src={thumbnailPreview} alt="Thumbnail" style={{ width: 150, marginTop: 10 }} />}
 
         <Button type="submit" variant="contained" disabled={loading}>
-          {loading ? "Saving..." : "Add Course"}
+          {loading ? <CircularProgress size={24} /> : "Add Course"}
         </Button>
       </Box>
 

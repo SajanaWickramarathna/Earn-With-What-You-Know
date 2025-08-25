@@ -1,4 +1,3 @@
-// src/pages/creator/MyCourses.js
 import React, { useEffect, useState } from "react";
 import {
   Container,
