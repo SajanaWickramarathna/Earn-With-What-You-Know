@@ -157,38 +157,6 @@ export default function CreatorSidebar() {
               </button>
             </li>
           ))}
-
-          {/* Add Lesson Dropdown */}
-          <li>
-            <button
-              onClick={() => setShowAddLessonDropdown(!showAddLessonDropdown)}
-              className="w-full flex items-center justify-between py-3 px-4 rounded-lg hover:bg-blue-50 text-blue-800 transition-all duration-200"
-            >
-              <div className="flex items-center">
-                <AddBoxIcon className="mr-3 text-blue-600" />
-                Add Lesson
-              </div>
-              <ExpandMoreIcon
-                className={`transition-transform ${showAddLessonDropdown ? "rotate-180" : ""}`}
-              />
-            </button>
-            {showAddLessonDropdown && (
-              <ul className="ml-8 mt-1 space-y-1">
-                {courses.map((course) => (
-                  <li key={course.course_id}>
-                    <button
-                      onClick={() =>
-                        navigate(`/creator-dashboard/course/${course.course_id}/add-lesson`)
-                      }
-                      className="w-full py-2 px-4 rounded hover:bg-blue-50 text-blue-700 text-sm"
-                    >
-                      {course.title}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
         </ul>
       </nav>
 
