@@ -14,6 +14,7 @@ import Notification from "../Creator/Pages/notifications";
 import AddLesson from "../Creator/Pages/lessons/addlessons";
 import Lessons from "../Creator/Pages/lessons/lessons";
 import ViewLesson from "../Creator/Pages/lessons/viewlessons";
+import DeleteLesson from "../Creator/Pages/lessons/deleteLessons";
 
 export default function CreatorDashboard() {
   return (
@@ -38,6 +39,8 @@ export default function CreatorDashboard() {
           <Route path="/notifications" element={<Notification />} />
           <Route path="/lessons" element={<Lessons />} />
           <Route path="/course/:courseId/view-lessons" element={<ViewLesson />} />
+          <Route path="/course/:courseId/delete-lessons" element={<DeleteLesson />} />
+
           {/* Add lesson under a specific course */}
           <Route path="/course/:courseId/add-lesson" element={<AddLesson />} />
         </Routes>

@@ -51,28 +51,6 @@ const ManageCoursesPage = () => {
   const handleAddLesson = (id) =>
     navigate(`/creator-dashboard/course/${id}/add-lesson`);
   const handleEdit = (id) => navigate(`/edit-course/${id}`);
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this course?")) return;
-
-    try {
-      await api.delete(`/courses/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCourses(courses.filter((c) => c.course_id !== id));
-      setSnackbar({
-        open: true,
-        message: "Course deleted",
-        severity: "success",
-      });
-    } catch (err) {
-      console.error(err);
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || "Failed to delete course",
-        severity: "error",
-      });
-    }
-  };
 
   const handleViewLessons = (id) =>
     navigate(`/creator-dashboard/course/${id}/view-lessons`);
@@ -130,13 +108,25 @@ const ManageCoursesPage = () => {
                 )}
 
                 <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 500 }}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ fontWeight: 500 }}
+                  >
                     {course.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
                     {course.description?.substring(0, 80)}...
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
                     Price: ${course.price} | Language: {course.language}
                   </Typography>
 
@@ -170,10 +160,14 @@ const ManageCoursesPage = () => {
                       variant="outlined"
                       size="small"
                       color="error"
-                      onClick={() => handleDelete(course.course_id)}
+                      onClick={() =>
+                        navigate(
+                          `/creator-dashboard/course/${course.course_id}/delete-lessons`
+                        )
+                      }
                       sx={{ flexGrow: 1 }}
                     >
-                      Delete Course
+                      Delete Lessons
                     </Button>
                   </Box>
                 </CardContent>

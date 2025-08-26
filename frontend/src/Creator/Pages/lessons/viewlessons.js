@@ -63,7 +63,7 @@ const ViewLessonsPage = () => {
   return (
     <Container sx={{ mt: 4, mb: 6 }}>
       <Button variant="outlined" onClick={handleBack} sx={{ mb: 2 }}>
-        Back to Courses
+        Back to Lessons
       </Button>
 
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
@@ -76,7 +76,13 @@ const ViewLessonsPage = () => {
         <Grid container spacing={3}>
           {lessons.map((lesson) => (
             <Grid item xs={12} sm={6} md={4} key={lesson.lesson_id}>
-              <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+              <Card
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 {lesson.video_url && (
                   <video
                     src={lesson.video_url}
@@ -93,10 +99,10 @@ const ViewLessonsPage = () => {
                     Duration: {lesson.duration}s
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Price: ${lesson.price} | Order: {lesson.order}
+                    Price: ${lesson.price} 
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {lesson.is_preview ? "Preview Available" : "Full Lesson"}
+                    Order: {lesson.order}
                   </Typography>
                 </CardContent>
               </Card>

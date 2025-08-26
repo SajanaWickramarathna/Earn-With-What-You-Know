@@ -10,13 +10,13 @@ import {
   Alert,
   Grid,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../../api";
 
 const AddLessonPage = () => {
   const { courseId } = useParams();
   const token = localStorage.getItem("token");
-
+  const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,10 @@ const AddLessonPage = () => {
     videoEl.preload = "metadata";
     videoEl.onloadedmetadata = () => {
       URL.revokeObjectURL(videoEl.src);
-      setFormData((prev) => ({ ...prev, duration: Math.floor(videoEl.duration) }));
+      setFormData((prev) => ({
+        ...prev,
+        duration: Math.floor(videoEl.duration),
+      }));
     };
     videoEl.src = URL.createObjectURL(file);
   };
@@ -155,12 +158,15 @@ const AddLessonPage = () => {
       </Box>
     );
 
+  const handleBack = () => navigate("/creator-dashboard/lessons");
   return (
     <Container sx={{ mt: 4, mb: 6 }}>
       <Typography variant="h4" gutterBottom>
         Add Lessons for "{course.title}"
       </Typography>
-
+      <Button variant="outlined" onClick={handleBack} sx={{ mb: 2 }}>
+        Back to Lessons
+      </Button>
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -228,7 +234,8 @@ const AddLessonPage = () => {
                   />
                 )}
                 <Typography variant="body2">
-                  Duration: {lesson.duration}s | Price: {lesson.price} | Order: {lesson.order}
+                  Duration: {lesson.duration}s | Price: {lesson.price} | Order:{" "}
+                  {lesson.order}
                 </Typography>
               </Box>
             </Grid>
