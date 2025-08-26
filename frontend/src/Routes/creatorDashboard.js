@@ -37,7 +37,7 @@ export default function CreatorDashboard() {
           <Route path="/addticket" element={<AddTicket />} />
           <Route path="/notifications" element={<Notification />} />
           <Route path="/lessons" element={<Lessons />} />
-          <Route path="/view-lesson/:id" element={<ViewLesson />} />
+          <Route path="/course/:courseId/view-lessons" element={<ViewLesson />} />
           {/* Add lesson under a specific course */}
           <Route path="/course/:courseId/add-lesson" element={<AddLesson />} />
         </Routes>

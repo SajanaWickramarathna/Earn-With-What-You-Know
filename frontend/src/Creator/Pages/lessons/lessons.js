@@ -50,11 +50,9 @@ const ManageCoursesPage = () => {
 
   const handleAddLesson = (id) =>
     navigate(`/creator-dashboard/course/${id}/add-lesson`);
-  const handleEdit = (id) =>
-    navigate(`/edit-course/${id}`);
+  const handleEdit = (id) => navigate(`/edit-course/${id}`);
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this course?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this course?")) return;
 
     try {
       await api.delete(`/courses/${id}`, {
@@ -75,6 +73,9 @@ const ManageCoursesPage = () => {
       });
     }
   };
+
+  const handleViewLessons = (id) =>
+    navigate(`/creator-dashboard/course/${id}/view-lessons`);
 
   return (
     <Container sx={{ mt: 4, mb: 6 }}>
@@ -154,7 +155,16 @@ const ManageCoursesPage = () => {
                       onClick={() => handleEdit(course.course_id)}
                       sx={{ flexGrow: 1 }}
                     >
-                      Edit Lessons
+                      Edit Course
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="info"
+                      onClick={() => handleViewLessons(course.course_id)}
+                      sx={{ flexGrow: 1 }}
+                    >
+                      View Lessons
                     </Button>
                     <Button
                       variant="outlined"
@@ -163,7 +173,7 @@ const ManageCoursesPage = () => {
                       onClick={() => handleDelete(course.course_id)}
                       sx={{ flexGrow: 1 }}
                     >
-                      Delete Lessons
+                      Delete Course
                     </Button>
                   </Box>
                 </CardContent>
