@@ -50,7 +50,7 @@ const ManageCoursesPage = () => {
 
   const handleAddLesson = (id) =>
     navigate(`/creator-dashboard/course/${id}/add-lesson`);
-  const handleEdit = (id) => navigate(`/edit-course/${id}`);
+  const handleEdit = (id) => navigate(`/creator-dashboard/course/${id}/Manage-lesson`);
 
   const handleViewLessons = (id) =>
     navigate(`/creator-dashboard/course/${id}/view-lessons`);
@@ -145,7 +145,7 @@ const ManageCoursesPage = () => {
                       onClick={() => handleEdit(course.course_id)}
                       sx={{ flexGrow: 1 }}
                     >
-                      Edit Course
+                      Manage Lessons
                     </Button>
                     <Button
                       variant="outlined"
@@ -155,19 +155,6 @@ const ManageCoursesPage = () => {
                       sx={{ flexGrow: 1 }}
                     >
                       View Lessons
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      color="error"
-                      onClick={() =>
-                        navigate(
-                          `/creator-dashboard/course/${course.course_id}/delete-lessons`
-                        )
-                      }
-                      sx={{ flexGrow: 1 }}
-                    >
-                      Delete Lessons
                     </Button>
                   </Box>
                 </CardContent>
