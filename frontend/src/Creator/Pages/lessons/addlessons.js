@@ -8,8 +8,6 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
-  Checkbox,
-  FormControlLabel,
   Grid,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
@@ -31,7 +29,7 @@ const AddLessonPage = () => {
 
   const [formData, setFormData] = useState({
     title: "",
-    duration: "",
+    duration: 0,
     price: 0,
     order: 0,
     is_preview: false,
@@ -70,7 +68,18 @@ const AddLessonPage = () => {
   };
 
   const handleVideoChange = (e) => {
-    if (e.target.files.length > 0) setVideoFile(e.target.files[0]);
+    if (e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    setVideoFile(file);
+
+    // Extract video duration
+    const videoEl = document.createElement("video");
+    videoEl.preload = "metadata";
+    videoEl.onloadedmetadata = () => {
+      URL.revokeObjectURL(videoEl.src);
+      setFormData((prev) => ({ ...prev, duration: Math.floor(videoEl.duration) }));
+    };
+    videoEl.src = URL.createObjectURL(file);
   };
 
   const handleSubmit = async (e) => {
@@ -115,7 +124,7 @@ const AddLessonPage = () => {
       setLessons((prev) => [...prev, lessonRes.data]);
       setFormData({
         title: "",
-        duration: "",
+        duration: 0,
         price: 0,
         order: 0,
         is_preview: false,
@@ -179,7 +188,7 @@ const AddLessonPage = () => {
           name="duration"
           type="number"
           value={formData.duration}
-          onChange={handleChange}
+          InputProps={{ readOnly: true }}
         />
         <TextField
           label="Price"
@@ -219,8 +228,7 @@ const AddLessonPage = () => {
                   />
                 )}
                 <Typography variant="body2">
-                  Duration: {lesson.duration}s | Price: {lesson.price} | Order:{" "}
-                  {lesson.order}
+                  Duration: {lesson.duration}s | Price: {lesson.price} | Order: {lesson.order}
                 </Typography>
               </Box>
             </Grid>
