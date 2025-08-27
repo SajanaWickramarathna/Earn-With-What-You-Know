@@ -65,6 +65,12 @@ export default function Profile() {
               <p className="text-sm text-gray-500 font-medium">Address</p>
               <p className="text-gray-800 font-medium">{userData.address || "Not provided"}</p>
             </div>
+
+            {/* Bio Section */}
+            <div className="bg-gray-50 p-4 rounded-xl md:col-span-2">
+              <p className="text-sm text-gray-500 font-medium">Bio</p>
+              <p className="text-gray-800 font-medium">{userData.bio || "Not provided"}</p>
+            </div>
           </div>
         </div>
 
