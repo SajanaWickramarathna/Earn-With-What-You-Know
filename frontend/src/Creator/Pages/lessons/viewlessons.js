@@ -94,6 +94,12 @@ const ViewLessonsPage = () => {
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     {lesson.title}
+                    {lesson.description && (
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+      {lesson.description}
+    </Typography>
+  )}
+
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Duration: {lesson.duration}s
