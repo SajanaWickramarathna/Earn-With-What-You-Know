@@ -16,6 +16,7 @@ import Lessons from "../Creator/Pages/lessons/lessons";
 import ViewLesson from "../Creator/Pages/lessons/viewlessons";
 import EditLesson from "../Creator/Pages/lessons/editlessons";
 import Managelessons from "../Creator/Pages/lessons/managelessons";
+import Editprofile from "../Creator/Pages/editprofile";
 
 export default function CreatorDashboard() {
   return (
@@ -43,6 +44,7 @@ export default function CreatorDashboard() {
           <Route path="/course/:courseId/edit-lesson/:lessonId" element={<EditLesson />} />
           <Route path="/course/:courseId/add-lesson" element={<AddLesson />} />
           <Route path="/course/:courseId/Manage-lesson" element={<Managelessons />} />
+          <Route path="/edit-profile" element={<Editprofile />} />
         </Routes>
       </div>
     </div>

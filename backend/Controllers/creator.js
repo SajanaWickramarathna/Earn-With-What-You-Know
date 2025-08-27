@@ -82,7 +82,12 @@ exports.addCreator = async(req, res) => {
 exports.updateCreator = async(req, res) => {
     try {
         const { firstName, lastName, email, address, phone, bio } = req.body;
-        const user_id = req.body.userId;
+        // Read user_id either from body or query
+        const user_id = req.body.userId || req.query.id;
+
+        if (!user_id) {
+            return res.status(400).json({ message: "userId is required" });
+        }
 
         const existingCreator = await User.findOne({ user_id, role: 'creator' });
         if (!existingCreator) {
@@ -97,7 +102,7 @@ exports.updateCreator = async(req, res) => {
             email,
             address,
             phone,
-            bio, // 👈 added
+            bio,
             profilePic,
         };
 
@@ -106,13 +111,14 @@ exports.updateCreator = async(req, res) => {
             updateData,
             { new: true }
         );
-        if (!creator) return res.status(404).json("Creator not found");
 
         res.json({ message: "Creator updated successfully", creator });
     } catch (error) {
-        res.status(500).json(error);
+        console.log(error);
+        res.status(500).json({ message: "Server error", error });
     }
 };
+
 
 
 exports.updateCreatorPassword = async (req,res) => {

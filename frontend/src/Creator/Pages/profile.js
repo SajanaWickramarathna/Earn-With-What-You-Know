@@ -8,6 +8,11 @@ export default function Profile() {
   const userData = location.state?.data;
   const navigate = useNavigate();
 
+  if (!userData) {
+    navigate("/signin"); 
+    return null;
+  }
+
   const handleDeleteAccount = async() => {
     try {
       const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
@@ -77,7 +82,7 @@ export default function Profile() {
         {/* Action Buttons */}
         <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
           <Link 
-            to={'/customer-dashboard/settings'} 
+            to={'/creator-dashboard/edit-profile'} 
             state={{data: userData}}
             className="flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all duration-300 transform hover:scale-105"
           >
