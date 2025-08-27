@@ -20,7 +20,8 @@ router.delete('/:id', authMiddleware(['creator']), courseController.deleteCourse
 router.patch('/:id/status', authMiddleware(['admin']), courseController.setCourseStatus);
 router.get("/admin/pending", authMiddleware(["admin"]), courseController.getPendingCourses);
 
-
+// Get all, pending, approved, rejected for admin
+router.get('/admin/all',courseController.getCoursesByStatus);
 
 // Upload thumbnail
 router.post(

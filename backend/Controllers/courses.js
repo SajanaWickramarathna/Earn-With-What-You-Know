@@ -127,3 +127,23 @@ exports.getPendingCourses = async (req, res) => {
   }
 };
 
+
+
+exports.getCoursesByStatus = async (req, res) => {
+  try {
+    const { status } = req.query;
+    let filter = {};
+
+    if (status && ['pending', 'approved', 'rejected'].includes(status)) {
+      filter.status = status;
+    }
+
+    const courses = await Course.find(filter).sort({ createdAt: -1 });
+    res.json(courses);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
