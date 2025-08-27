@@ -22,6 +22,7 @@ export default function SignUp() {
     password: "",
     cpassword: "",
     role: "learner", // default role
+    bio: "", // 👈 added bio
   });
 
   const [image, setImage] = useState(null);
@@ -65,11 +66,11 @@ export default function SignUp() {
       formDataToSend.append("password", formData.password);
       formDataToSend.append("confirmPassword", formData.cpassword);
       formDataToSend.append("role", formData.role);
+      formDataToSend.append("bio", formData.bio); // 👈 added bio
       if (image) {
         formDataToSend.append("profile_image", image);
       }
 
-      // ✅ pick correct endpoint
       const endpoint =
         formData.role === "learner" ? "/learners/signup" : "/creators/signup";
 
@@ -106,7 +107,6 @@ export default function SignUp() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
-          {/* Auth Header */}
           <div className="bg-gradient-to-r from-purple-600 to-purple-800 p-6 text-center">
             <h1 className="text-2xl font-bold text-white">
               Create Your Account
@@ -114,7 +114,6 @@ export default function SignUp() {
             <p className="text-purple-100 mt-1">Join us to get started</p>
           </div>
 
-          {/* Auth Form */}
           <div className="p-6 sm:p-8">
             {error && (
               <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
@@ -131,10 +130,7 @@ export default function SignUp() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* First Name */}
                 <div className="space-y-1">
-                  <label
-                    htmlFor="fname"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="fname" className="block text-sm font-medium text-gray-700">
                     First Name
                   </label>
                   <div className="relative">
@@ -156,10 +152,7 @@ export default function SignUp() {
 
                 {/* Last Name */}
                 <div className="space-y-1">
-                  <label
-                    htmlFor="lname"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="lname" className="block text-sm font-medium text-gray-700">
                     Last Name
                   </label>
                   <div className="relative">
@@ -181,10 +174,7 @@ export default function SignUp() {
 
                 {/* Email */}
                 <div className="space-y-1">
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                     Email Address
                   </label>
                   <div className="relative">
@@ -206,10 +196,7 @@ export default function SignUp() {
 
                 {/* Phone */}
                 <div className="space-y-1">
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                     Phone Number
                   </label>
                   <div className="relative">
@@ -233,10 +220,7 @@ export default function SignUp() {
 
                 {/* Address */}
                 <div className="space-y-1 md:col-span-2">
-                  <label
-                    htmlFor="address"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                     Address
                   </label>
                   <div className="relative">
@@ -255,12 +239,10 @@ export default function SignUp() {
                     />
                   </div>
                 </div>
+
                 {/* Role Selection */}
                 <div className="space-y-1 md:col-span-2">
-                  <label
-                    htmlFor="role"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="role" className="block text-sm font-medium text-gray-700">
                     Select Role
                   </label>
                   <select
@@ -275,12 +257,25 @@ export default function SignUp() {
                   </select>
                 </div>
 
+                {/* Bio */}
+                <div className="space-y-1 md:col-span-2">
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+                    Bio
+                  </label>
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    placeholder="Tell us a little about yourself..."
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    value={formData.bio}
+                    onChange={handleChange}
+                    rows={3}
+                  />
+                </div>
+
                 {/* Profile Image */}
                 <div className="space-y-1 md:col-span-2">
-                  <label
-                    htmlFor="profile_image"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="profile_image" className="block text-sm font-medium text-gray-700">
                     Profile Image
                   </label>
                   <div className="relative">
@@ -293,17 +288,13 @@ export default function SignUp() {
                       accept="image/*"
                       onChange={handleImageChange}
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                      required
                     />
                   </div>
                 </div>
 
                 {/* Password */}
                 <div className="space-y-1">
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                     Password
                   </label>
                   <div className="relative">
@@ -321,17 +312,12 @@ export default function SignUp() {
                       required
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Minimum 8 characters
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
                 </div>
 
                 {/* Confirm Password */}
                 <div className="space-y-1">
-                  <label
-                    htmlFor="cpassword"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="cpassword" className="block text-sm font-medium text-gray-700">
                     Confirm Password
                   </label>
                   <div className="relative">
@@ -369,14 +355,10 @@ export default function SignUp() {
               </button>
             </form>
 
-            {/* Sign In Link */}
             <div className="mt-6 text-center text-sm">
               <p className="text-gray-600">
                 Already have an account?{" "}
-                <a
-                  href="/signin"
-                  className="font-medium text-purple-600 hover:text-purple-500 hover:underline"
-                >
+                <a href="/signin" className="font-medium text-purple-600 hover:text-purple-500 hover:underline">
                   Sign in
                 </a>
               </p>
