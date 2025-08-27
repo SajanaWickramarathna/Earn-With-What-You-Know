@@ -12,14 +12,13 @@ import SettingIcon from "@mui/icons-material/SettingsOutlined";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { api } from "../../api";
 import { CircularProgress } from "@mui/material";
-import { useCart } from "../../context/CartContext";
+
 
 export default function Sidebar() {
   const [userData, setUserData] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [isLoading, setIsLoading] = useState(true);
   const [notificationCount, setNotificationCount] = useState(0);
-  const { cartCount, fetchCartCount } = useCart(); // grab fetchCartCount
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -67,12 +66,11 @@ export default function Sidebar() {
 
     fetchNotifications();
 
-    // *** HERE: fetch cart count as well ***
-    fetchCartCount();
+   
 
     const interval = setInterval(fetchNotifications, 10000);
     return () => clearInterval(interval);
-  }, [userData, fetchCartCount]); // Added fetchCartCount to deps
+  }, [userData]); 
 
   const handleNavigation = (path) => {
     navigate(path, { state: { data: userData } });
@@ -101,7 +99,7 @@ export default function Sidebar() {
         <div className="text-xl font-semibold text-center">
           {userData?.firstName} {userData?.lastName}
         </div>
-        <div className="text-sm text-blue-500">Customer</div>
+        <div className="text-sm text-blue-500">Lerner</div>
       </div>
 
       <hr className="border-t border-blue-100 mx-4" />
@@ -168,12 +166,7 @@ export default function Sidebar() {
                     {notificationCount}
                   </span>
                 )}
-                {/* Badge for Cart */}
-                {item.name === "Cart" && cartCount > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                    {cartCount}
-                  </span>
-                )}
+
               </button>
             </li>
           ))}

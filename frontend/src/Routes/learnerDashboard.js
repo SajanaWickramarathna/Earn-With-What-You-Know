@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import Sidebar from "../Creator/components/sidebar";
+import Sidebar from "../Lerner/components/sidebar";
 
 export default function LearnerDashboard() {
     return (
