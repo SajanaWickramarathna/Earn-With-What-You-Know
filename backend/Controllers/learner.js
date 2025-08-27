@@ -42,49 +42,49 @@ exports.getLearnerByEmail = async (req, res) => {
 
 exports.addLearner = async(req, res) => {
     try {
-        const {firstName, lastName, email, password, confirmPassword, address, phone} = req.body;
+        const { firstName, lastName, email, password, confirmPassword, address, phone, bio } = req.body;
 
-        const isUserExist = await User.findOne({email});
-
-        if(isUserExist){
+        const isUserExist = await User.findOne({ email });
+        if (isUserExist) {
             return res.status(400).json({ message: "User with this email already exists." });
         }
 
-        if(password !== confirmPassword){
-            return res.status(400).json({message: "Passwords do not match"});
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: "Passwords do not match" });
         }
 
-        const hashedPassword = await bcrypt.hash(password,12);
+        const hashedPassword = await bcrypt.hash(password, 12);
 
         const learner = new User({
             firstName,
             lastName,
             email,
             password: hashedPassword,
-            profilePic : req.file ? `/uploads/${req.file.filename}` : "",
-            role: 'learner', // Set the role explicitly
+            profilePic: req.file ? `/uploads/${req.file.filename}` : "",
+            role: 'learner',
             address,
-            phone
+            phone,
+            bio // 👈 added
         });
         await learner.save();
 
         const token = jwt.sign({ email }, process.env.SECRET_KEY, { expiresIn: "1h" });
-
         await sendVerificationEmail(email, token);
 
         res.status(200).json({ message: "Learner registered! Please check your email for verification." });
-    }catch (error) {
+    } catch (error) {
         res.status(500).json(error);
         console.log(error);
     }
 };
 
+
 exports.updateLearner = async(req, res) => {
     try {
-        const {firstName, lastName, email, address, phone} = req.body;
+        const { firstName, lastName, email, address, phone, bio } = req.body;
         const user_id = req.body.userId;
 
-        const existingLearner = await User.findOne({user_id, role: 'learner'});
+        const existingLearner = await User.findOne({ user_id, role: 'learner' });
         if (!existingLearner) {
             return res.status(404).json({ message: "Learner not found" });
         }
@@ -97,17 +97,23 @@ exports.updateLearner = async(req, res) => {
             email,
             address,
             phone,
+            bio, // 👈 added
             profilePic,
         };
 
-        const learner = await User.findOneAndUpdate({user_id, role: 'learner'}, updateData, {new:true});
-        if(!learner) return res.status(404).json("Learner not found");
-        console.log(learner);
+        const learner = await User.findOneAndUpdate(
+            { user_id, role: 'learner' },
+            updateData,
+            { new: true }
+        );
+        if (!learner) return res.status(404).json("Learner not found");
+
         res.json({ message: "Learner updated successfully", learner });
-    }catch (error) {
+    } catch (error) {
         res.status(500).json(error);
     }
 };
+
 
 exports.updateLearnerPassword = async (req,res) => {
     try{

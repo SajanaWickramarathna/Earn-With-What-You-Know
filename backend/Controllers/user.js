@@ -157,37 +157,38 @@ exports.verifyemail = async(req, res) => {
 };
 
 
-exports.updateUser = async(req,res) => {
-    try {
-        const {firstName, lastName,email,address,phone} = req.body;
-        const user_id = req.body.userId; 
-        
-        const existingUser = await User.findOne({user_id});
-        if (!existingUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
+exports.updateUser = async (req, res) => {
+  try {
+    const { firstName, lastName, email, address, phone, bio } = req.body; // include bio
+    const user_id = req.body.userId;
 
-        // If a new file is uploaded, use it; otherwise, keep the existing profilePic
-        const profilePic = req.file ? `/uploads/${req.file.filename}` : existingUser.profilePic;
-
-        const updateData = {
-            firstName,
-            lastName,
-            email,
-            address,
-            phone,
-            profilePic , 
-        }
-
-        const user = await User.findOneAndUpdate({user_id},updateData, {new:true});
-        if(!user) return res.status(404).json("User not found");
-        console.log(user);
-        res.json({ message: "User updated successfully", user });
-    }catch (error) {
-        res.status(500).json(error);
+    const existingUser = await User.findOne({ user_id });
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
     }
-   
-}
+
+    // If a new file is uploaded, use it; otherwise, keep the existing profilePic
+    const profilePic = req.file ? `/uploads/${req.file.filename}` : existingUser.profilePic;
+
+    const updateData = {
+      firstName,
+      lastName,
+      email,
+      address,
+      phone,
+      bio,           // add bio here
+      profilePic,
+    };
+
+    const user = await User.findOneAndUpdate({ user_id }, updateData, { new: true });
+    if (!user) return res.status(404).json("User not found");
+
+    res.json({ message: "User updated successfully", user });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
 
 exports.deleteUser = async(req,res) => {
     try {
