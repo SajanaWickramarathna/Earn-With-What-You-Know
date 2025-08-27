@@ -117,7 +117,7 @@ const EditLesson = () => {
         <Typography variant="h4">Edit Lesson</Typography>
         <Button
           variant="outlined"
-          onClick={() => navigate(`/creator-dashboard/course/${courseId}/view-lessons`)}
+          onClick={() => navigate(`/creator-dashboard/course/${courseId}/Manage-lesson`)}
         >
           Back to Lessons
         </Button>
