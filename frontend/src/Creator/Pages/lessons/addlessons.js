@@ -85,7 +85,7 @@ const AddLessonPage = () => {
     videoEl.src = URL.createObjectURL(file);
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     if (!videoFile) {
       setSnackbar({
@@ -118,27 +118,14 @@ const AddLessonPage = () => {
       if (!video_url) throw new Error("Video URL not returned from upload");
 
       // Create lesson
-      const lessonRes = await api.post(
+      await api.post(
         "/lessons",
         { ...formData, course_id: Number(courseId), video_url },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setLessons((prev) => [...prev, lessonRes.data]);
-      setFormData({
-        title: "",
-        duration: 0,
-        price: 0,
-        order: 0,
-        is_preview: false,
-      });
-      setVideoFile(null);
-
-      setSnackbar({
-        open: true,
-        message: "Lesson added successfully",
-        severity: "success",
-      });
+      // ✅ Redirect to view lessons after successful creation
+      navigate(`/creator-dashboard/course/${courseId}/view-lessons`);
     } catch (err) {
       console.error("Error adding lesson:", err.response || err);
       setSnackbar({
@@ -150,6 +137,7 @@ const AddLessonPage = () => {
       setSaving(false);
     }
   };
+
 
   if (loading)
     return (
@@ -213,34 +201,6 @@ const AddLessonPage = () => {
         <Button type="submit" variant="contained" disabled={saving}>
           {saving ? "Saving..." : "Add Lesson"}
         </Button>
-      </Box>
-
-      <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" gutterBottom>
-          Existing Lessons
-        </Typography>
-        {lessons.length === 0 && <Typography>No lessons yet.</Typography>}
-        <Grid container spacing={2}>
-          {lessons.map((lesson) => (
-            <Grid item xs={12} md={6} key={lesson.lesson_id}>
-              <Box sx={{ p: 2, boxShadow: 2, borderRadius: 1 }}>
-                <Typography variant="subtitle1">{lesson.title}</Typography>
-                {lesson.video_url && (
-                  <video
-                    src={lesson.video_url}
-                    controls
-                    width="100%"
-                    style={{ borderRadius: 4 }}
-                  />
-                )}
-                <Typography variant="body2">
-                  Duration: {lesson.duration}s | Price: {lesson.price} | Order:{" "}
-                  {lesson.order}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
       </Box>
 
       <Snackbar
