@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import Logo from "../assets/adminlogo.png";
+import Logo from "../../assets/logo.png";
 import { Logout, ExpandMore, ExpandLess } from "@mui/icons-material";
 import DashboardIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 import PeopleIcon from "@mui/icons-material/PeopleAltOutlined";
@@ -26,7 +26,7 @@ export default function Sidebar() {
   const [userData, setUserData] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [isLoading, setIsLoading] = useState(true);
-
+  const [notificationCount, setNotificationCount] = useState(0); // State for notification count
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -56,6 +56,20 @@ export default function Sidebar() {
     }
   };
 
+  const fetchNotifications = async (userId) => {
+    try {
+      const res = await api.get(
+        `/notifications/user/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const unreadCount = res.data.filter((n) => !n.read).length;
+      setNotificationCount(unreadCount);
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  };
 
   useEffect(() => {
     if (token) {
@@ -65,29 +79,66 @@ export default function Sidebar() {
     }
   }, [token, navigate]);
 
+  useEffect(() => {
+    if (userData && userData.user_id) {
+      fetchNotifications(userData.user_id);
+      const interval = setInterval(
+        () => fetchNotifications(userData.user_id),
+        10000
+      ); // Fetch every 10 seconds
+      return () => clearInterval(interval);
+    }
+  }, [userData, token]); // Add token to dependency array for re-fetch on token change
+
   const isDropdownActive = (items) => {
     return items.some((item) => location.pathname === item.to);
   };
 
   const navItems = [
     {
-      name: "Home",
-      icon: <HomeIcon />,
-      to: "/",
-      type: "link",
-    },
-    {
       name: "Dashboard",
       icon: <DashboardIcon />,
       to: "/admin-dashboard",
       type: "link",
     },
-  
     {
-      name: "Settings",
-      icon: <SettingsIcon />,
-      to: "/admin-dashboard/settings",
+      name: "Notifications", // Added Notifications item
+      icon: <NotificationIcon />,
+      to: "/admin-dashboard/notifications",
       type: "link",
+    },
+    {
+      name: "Manage Users",
+      icon: <PeopleIcon />,
+      type: "dropdown",
+      dropdownKey: "manage_users",
+      items: [
+        { name: "Creators", to: "/admin-dashboard/users/creators" },
+        { name: "Lernars", to: "/admin-dashboard/users/lernars" },
+        { name: "Supporters", to: "/admin-dashboard/users/supporters" },
+        { name: "Admins", to: "/admin-dashboard/users/admins" },
+      ],
+    },
+    {
+      name: "Courses",
+      icon: <InventoryIcon />,
+      type: "dropdown",
+      dropdownKey: "courses",
+      items: [
+        { name: "Course Approval", to: "/admin-dashboard/approve" },
+        { name: "View All Courses", to: "/admin-dashboard/view" },
+        
+      ],
+    },
+    {
+      name: "Analytics",
+      icon: <AnalyticsIcon />,
+      type: "dropdown",
+      dropdownKey: "analytics",
+      items: [
+        { name: "Users", to: "/admin-dashboard/analytics/users" },
+        { name: "Courses", to: "/admin-dashboard/analytics/courses" },
+      ],
     },
   ];
 
