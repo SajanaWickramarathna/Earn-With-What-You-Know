@@ -6,6 +6,7 @@ const lessonSchema = new mongoose.Schema({
   lesson_id: { type: Number, unique: true },
   course_id: { type: Number, required: true }, // link to course by numeric ID
   title: { type: String, required: true },
+  description: { type: String, required: true }, // <-- required
   video_url: { type: String, required: true },
   duration: Number,
   price: Number,

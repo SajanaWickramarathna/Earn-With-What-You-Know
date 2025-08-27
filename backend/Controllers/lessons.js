@@ -3,11 +3,16 @@ const Lesson = require('../Models/lessons');
 // Create a lesson under a course
 exports.createLesson = async (req, res) => {
   try {
-    const { course_id, title, video_url, duration, price, order, is_preview } = req.body;
+    const { course_id, title, description, video_url, duration, price, order, is_preview } = req.body;
+
+    if (!description) {
+      return res.status(400).json({ message: "Lesson description is required." });
+    }
 
     const lesson = new Lesson({
       course_id,
       title,
+      description,
       video_url,
       duration,
       price,
@@ -47,6 +52,10 @@ exports.getLessonById = async (req, res) => {
 // Update lesson
 exports.updateLesson = async (req, res) => {
   try {
+    if (req.body.description === "") {
+      return res.status(400).json({ message: "Lesson description is required." });
+    }
+
     const updated = await Lesson.findOneAndUpdate(
       { lesson_id: req.params.id },
       req.body,
@@ -58,6 +67,7 @@ exports.updateLesson = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
 
 // Delete lesson
 exports.deleteLesson = async (req, res) => {
