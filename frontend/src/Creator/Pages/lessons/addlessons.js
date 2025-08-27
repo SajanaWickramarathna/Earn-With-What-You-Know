@@ -28,12 +28,13 @@ const AddLessonPage = () => {
   });
 
   const [formData, setFormData] = useState({
-    title: "",
-    duration: 0,
-    price: 0,
-    order: 0,
-    is_preview: false,
-  });
+  title: "",
+  description: "", // ✅ added
+  duration: 0,
+  price: 0,
+  order: 0,
+  is_preview: false,
+});
 
   const [videoFile, setVideoFile] = useState(null);
 
@@ -156,52 +157,64 @@ const AddLessonPage = () => {
         Back to Lessons
       </Button>
       <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}
-      >
-        <TextField
-          label="Lesson Title"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-        <Button variant="contained" component="label">
-          Upload Lesson Video
-          <input
-            type="file"
-            hidden
-            accept="video/*"
-            onChange={handleVideoChange}
-          />
-        </Button>
-        {videoFile && <Typography>Selected Video: {videoFile.name}</Typography>}
-        <TextField
-          label="Duration (seconds)"
-          name="duration"
-          type="number"
-          value={formData.duration}
-          InputProps={{ readOnly: true }}
-        />
-        <TextField
-          label="Price"
-          name="price"
-          type="number"
-          value={formData.price}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Order"
-          name="order"
-          type="number"
-          value={formData.order}
-          onChange={handleChange}
-        />
-        <Button type="submit" variant="contained" disabled={saving}>
-          {saving ? "Saving..." : "Add Lesson"}
-        </Button>
-      </Box>
+  component="form"
+  onSubmit={handleSubmit}
+  sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}
+>
+  <TextField
+    label="Lesson Title"
+    name="title"
+    value={formData.title}
+    onChange={handleChange}
+    required
+  />
+
+  <TextField
+    label="Lesson Description"
+    name="description"
+    value={formData.description}
+    onChange={handleChange}
+    multiline
+    rows={3}
+    required
+  />
+
+  <Button variant="contained" component="label">
+    Upload Lesson Video
+    <input
+      type="file"
+      hidden
+      accept="video/*"
+      onChange={handleVideoChange}
+    />
+  </Button>
+  {videoFile && <Typography>Selected Video: {videoFile.name}</Typography>}
+  
+  <TextField
+    label="Duration (seconds)"
+    name="duration"
+    type="number"
+    value={formData.duration}
+    InputProps={{ readOnly: true }}
+  />
+  <TextField
+    label="Price"
+    name="price"
+    type="number"
+    value={formData.price}
+    onChange={handleChange}
+  />
+  <TextField
+    label="Order"
+    name="order"
+    type="number"
+    value={formData.order}
+    onChange={handleChange}
+  />
+  <Button type="submit" variant="contained" disabled={saving}>
+    {saving ? "Saving..." : "Add Lesson"}
+  </Button>
+</Box>
 
       <Snackbar
         open={snackbar.open}
