@@ -110,6 +110,15 @@ const ViewLesson = () => {
               )}
               <CardContent>
                 <Typography variant="h6">{lesson.title}</Typography>
+                {lesson.description && (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
+                    {lesson.description}
+                  </Typography>
+                )}
                 <Typography variant="body2">
                   Duration: {lesson.duration}s | Price: {lesson.price} | Order:{" "}
                   {lesson.order}

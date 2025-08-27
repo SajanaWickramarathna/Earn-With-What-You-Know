@@ -95,17 +95,20 @@ const ViewLessonsPage = () => {
                   <Typography variant="h6" gutterBottom>
                     {lesson.title}
                     {lesson.description && (
-    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-      {lesson.description}
-    </Typography>
-  )}
-
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 1 }}
+                      >
+                        {lesson.description}
+                      </Typography>
+                    )}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Duration: {lesson.duration}s
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Price: ${lesson.price} 
+                    Price: ${lesson.price}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Order: {lesson.order}
