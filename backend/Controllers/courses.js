@@ -116,3 +116,14 @@ exports.setCourseStatus = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Controller
+exports.getPendingCourses = async (req, res) => {
+  try {
+    const courses = await Course.find({ status: "pending" });
+    res.json(courses);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

@@ -18,6 +18,9 @@ router.delete('/:id', authMiddleware(['creator']), courseController.deleteCourse
 
 // Admin routes
 router.patch('/:id/status', authMiddleware(['admin']), courseController.setCourseStatus);
+router.get("/admin/pending", authMiddleware(["admin"]), courseController.getPendingCourses);
+
+
 
 // Upload thumbnail
 router.post(

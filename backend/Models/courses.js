@@ -9,12 +9,11 @@ const courseSchema = new mongoose.Schema({
   price: { type: Number, default: 0 },
   language: { type: String, enum: ['Sinhala', 'Tamil', 'English'], required: true },
 
- 
   creator_id: { type: Number, required: true }, // numeric ID for quick filtering
 
   teaser_url: String,
   thumbnail_url: String,
-   lessons: [
+  lessons: [
     {
       lesson_id: Number,
       title: String,
@@ -28,6 +27,8 @@ const courseSchema = new mongoose.Schema({
   resources: [String],
 
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  rejection_reason: { type: String, default: "" }, // <-- New field for rejection reason
+
   purchase_count: { type: Number, default: 0 },
   average_rating: { type: Number, default: 0 },
   review_count: { type: Number, default: 0 },
