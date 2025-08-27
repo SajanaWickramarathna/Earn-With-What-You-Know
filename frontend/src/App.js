@@ -12,10 +12,13 @@ import Logout from "./components/logout";
 import VerifyEmail from "./components/verifyemail";
 import ForgotPassword from "./Pages/forgotPassword";
 import ResetPassword from "./components/resetPassword";
+import Home from "./Pages/home";
 
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<Home />} />
+      
       <Route path="/signup" element={<Signup />} />
 
       <Route path="/signin" element={<Login />} />
