@@ -11,6 +11,7 @@ import {
   CardMedia,
   Box,
   CircularProgress,
+  Chip,
 } from "@mui/material";
 import { api } from "../../../api"; 
 
@@ -35,18 +36,19 @@ const AdminCoursesPage = () => {
   }, [status]);
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
+    <Container sx={{ py: 4 }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 600 }}>
         Manage Courses
       </Typography>
 
       {/* Status Filter */}
-      <Box mb={3}>
-        <Typography variant="subtitle1">Status Filter</Typography>
+      <Box mb={3} sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="subtitle1">Status Filter:</Typography>
         <Select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
           displayEmpty
+          sx={{ minWidth: 150 }}
         >
           <MenuItem value="">All</MenuItem>
           <MenuItem value="pending">Pending</MenuItem>
@@ -56,30 +58,57 @@ const AdminCoursesPage = () => {
       </Box>
 
       {loading ? (
-        <CircularProgress />
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+          <CircularProgress />
+        </Box>
       ) : courses.length === 0 ? (
         <Typography>No courses found.</Typography>
       ) : (
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           {courses.map((course) => (
             <Grid item xs={12} md={6} key={course.course_id}>
-              <Card sx={{ display: "flex", height: 180 }}>
+              <Card sx={{ display: "flex", height: 180, borderRadius: 3, boxShadow: 3 }}>
                 {/* Thumbnail */}
-                <CardMedia
-                  component="img"
-                  image={course.thumbnail_url}
-                  alt={course.title}
-                  sx={{ width: 180 }}
-                />
+                {course.thumbnail_url ? (
+                  <CardMedia
+                    component="img"
+                    image={course.thumbnail_url}
+                    alt={course.title}
+                    sx={{ width: 180, objectFit: "cover" }}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      width: 180,
+                      height: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      bgcolor: "grey.200",
+                      color: "grey.600",
+                    }}
+                  >
+                    No Thumbnail
+                  </Box>
+                )}
+
                 <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                  <CardContent>
-                    <Typography variant="h6">{course.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                      {course.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                       {course.description?.slice(0, 80)}...
                     </Typography>
-                    <Typography variant="body2">
-                      Status: {course.status}
-                    </Typography>
+
+                    {/* Status & Category */}
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, alignItems: "center" }}>
+                      <Chip label={`Status: ${course.status}`} size="small" color="info" />
+                      {course.category && (
+                        <Chip label={`Category: ${course.category}`} size="small" color="primary" />
+                      )}
+                      <Chip label={`Language: ${course.language}`} size="small" color="secondary" />
+                    </Box>
                   </CardContent>
                 </Box>
               </Card>

@@ -26,7 +26,7 @@ import {
   CheckCircle as ApproveIcon,
   Cancel as RejectIcon,
   Visibility as PreviewIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import { api } from "../../../api";
 
@@ -38,9 +38,21 @@ const AdminPendingCourses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState({});
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
-  const [rejectDialog, setRejectDialog] = useState({ open: false, courseId: null, reason: "" });
-  const [previewDialog, setPreviewDialog] = useState({ open: false, url: "", type: "" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const [rejectDialog, setRejectDialog] = useState({
+    open: false,
+    courseId: null,
+    reason: "",
+  });
+  const [previewDialog, setPreviewDialog] = useState({
+    open: false,
+    url: "",
+    type: "",
+  });
 
   useEffect(() => {
     fetchPendingCourses();
@@ -55,46 +67,74 @@ const AdminPendingCourses = () => {
       setLoading(false);
     } catch (err) {
       console.error(err);
-      setSnackbar({ open: true, message: "Failed to load courses", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "Failed to load courses",
+        severity: "error",
+      });
       setLoading(false);
     }
   };
 
   const handleApprove = async (course_id) => {
-    setActionLoading(prev => ({ ...prev, [course_id]: true }));
+    setActionLoading((prev) => ({ ...prev, [course_id]: true }));
     try {
-      await api.patch(`/courses/${course_id}/status`, { status: "approved" }, {
-        headers: { Authorization: `Bearer ${token}` }
+      await api.patch(
+        `/courses/${course_id}/status`,
+        { status: "approved" },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setSnackbar({
+        open: true,
+        message: "Course approved successfully",
+        severity: "success",
       });
-      setSnackbar({ open: true, message: "Course approved successfully", severity: "success" });
       fetchPendingCourses();
     } catch (err) {
       console.error(err);
-      setSnackbar({ open: true, message: "Failed to approve course", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "Failed to approve course",
+        severity: "error",
+      });
     }
-    setActionLoading(prev => ({ ...prev, [course_id]: false }));
+    setActionLoading((prev) => ({ ...prev, [course_id]: false }));
   };
 
   const handleReject = async () => {
     const { courseId, reason } = rejectDialog;
     if (!reason) {
-      setSnackbar({ open: true, message: "Please provide a rejection reason", severity: "warning" });
+      setSnackbar({
+        open: true,
+        message: "Please provide a rejection reason",
+        severity: "warning",
+      });
       return;
     }
-    
-    setActionLoading(prev => ({ ...prev, [courseId]: true }));
+
+    setActionLoading((prev) => ({ ...prev, [courseId]: true }));
     try {
-      await api.patch(`/courses/${courseId}/status`, { status: "rejected", rejection_reason: reason }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.patch(
+        `/courses/${courseId}/status`,
+        { status: "rejected", rejection_reason: reason },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setSnackbar({ open: true, message: "Course rejected", severity: "info" });
       fetchPendingCourses();
       setRejectDialog({ open: false, courseId: null, reason: "" });
     } catch (err) {
       console.error(err);
-      setSnackbar({ open: true, message: "Failed to reject course", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "Failed to reject course",
+        severity: "error",
+      });
     }
-    setActionLoading(prev => ({ ...prev, [courseId]: false }));
+    setActionLoading((prev) => ({ ...prev, [courseId]: false }));
   };
 
   const handlePreviewOpen = (url, type) => {
@@ -107,7 +147,14 @@ const AdminPendingCourses = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "60vh",
+        }}
+      >
         <CircularProgress size={60} />
       </Box>
     );
@@ -115,7 +162,15 @@ const AdminPendingCourses = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Typography variant="h4" sx={{ mb: 3, textAlign: "center", fontWeight: "bold", color: "primary.main" }}>
+      <Typography
+        variant="h4"
+        sx={{
+          mb: 3,
+          textAlign: "center",
+          fontWeight: "bold",
+          color: "primary.main",
+        }}
+      >
         Pending Courses Approval
       </Typography>
 
@@ -131,7 +186,7 @@ const AdminPendingCourses = () => {
       )}
 
       <Grid container spacing={3}>
-        {courses.map(course => (
+        {courses.map((course) => (
           <Grid item xs={12} md={6} lg={4} key={course.course_id}>
             <Card
               sx={{
@@ -146,45 +201,63 @@ const AdminPendingCourses = () => {
               }}
             >
               <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2, color: "primary.dark" }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: "bold", mb: 2, color: "primary.dark" }}
+                >
                   {course.title}
                 </Typography>
 
-                <Box sx={{ display: "flex", gap: 2, mb: 2, flexDirection: isMobile ? "column" : "row" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    mb: 2,
+                    flexDirection: isMobile ? "column" : "row",
+                  }}
+                >
                   {course.thumbnail_url && (
                     <Box sx={{ flex: 1, position: "relative" }}>
-                      <Typography variant="caption" display="block" sx={{ mb: 1, fontWeight: "medium" }}>
+                      <Typography
+                        variant="caption"
+                        display="block"
+                        sx={{ mb: 1, fontWeight: "medium" }}
+                      >
                         Thumbnail
                       </Typography>
-                      <Box 
-                        sx={{ 
-                          width: "100%", 
-                          height: 300, 
-                          overflow: "hidden", 
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: 300,
+                          overflow: "hidden",
                           borderRadius: 2,
                           cursor: "pointer",
                           boxShadow: 2,
                         }}
-                        onClick={() => handlePreviewOpen(course.thumbnail_url, "image")}
+                        onClick={() =>
+                          handlePreviewOpen(course.thumbnail_url, "image")
+                        }
                       >
                         <CardMedia
                           component="img"
                           image={course.thumbnail_url}
                           alt={course.title}
-                          sx={{ 
-                            width: "100%", 
-                            height: "100%", 
+                          sx={{
+                            width: "100%",
+                            height: "100%",
                             objectFit: "cover",
                             transition: "transform 0.3s",
-                            "&:hover": { transform: "scale(1.05)" }
+                            "&:hover": { transform: "scale(1.05)" },
                           }}
                         />
                         <Box sx={{ position: "absolute", top: 8, right: 8 }}>
-                          <IconButton 
-                            size="small" 
-                            sx={{ 
+                          <IconButton
+                            size="small"
+                            sx={{
                               backgroundColor: "rgba(255,255,255,0.8)",
-                              "&:hover": { backgroundColor: "rgba(255,255,255,1)" }
+                              "&:hover": {
+                                backgroundColor: "rgba(255,255,255,1)",
+                              },
                             }}
                           >
                             <PreviewIcon fontSize="small" />
@@ -193,22 +266,28 @@ const AdminPendingCourses = () => {
                       </Box>
                     </Box>
                   )}
-                  
+
                   {course.teaser_url && (
                     <Box sx={{ flex: 1, position: "relative" }}>
-                      <Typography variant="caption" display="block" sx={{ mb: 1, fontWeight: "medium" }}>
+                      <Typography
+                        variant="caption"
+                        display="block"
+                        sx={{ mb: 1, fontWeight: "medium" }}
+                      >
                         Teaser Video
                       </Typography>
-                      <Box 
-                        sx={{ 
-                          width: "100%", 
-                          height: 300, 
-                          overflow: "hidden", 
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: 300,
+                          overflow: "hidden",
                           borderRadius: 2,
                           cursor: "pointer",
                           boxShadow: 2,
                         }}
-                        onClick={() => handlePreviewOpen(course.teaser_url, "video")}
+                        onClick={() =>
+                          handlePreviewOpen(course.teaser_url, "video")
+                        }
                       >
                         <video
                           width="100%"
@@ -219,11 +298,13 @@ const AdminPendingCourses = () => {
                           Your browser does not support the video tag.
                         </video>
                         <Box sx={{ position: "absolute", top: 8, right: 8 }}>
-                          <IconButton 
-                            size="small" 
-                            sx={{ 
+                          <IconButton
+                            size="small"
+                            sx={{
                               backgroundColor: "rgba(255,255,255,0.8)",
-                              "&:hover": { backgroundColor: "rgba(255,255,255,1)" }
+                              "&:hover": {
+                                backgroundColor: "rgba(255,255,255,1)",
+                              },
                             }}
                           >
                             <PreviewIcon fontSize="small" />
@@ -234,36 +315,62 @@ const AdminPendingCourses = () => {
                   )}
                 </Box>
 
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  {course.description.length > 120 ? course.description.slice(0, 120) + "..." : course.description}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  {course.description.length > 120
+                    ? course.description.slice(0, 120) + "..."
+                    : course.description}
                 </Typography>
 
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-                  <Chip 
-                    label={`$${course.price}`} 
-                    size="small" 
-                    color="primary" 
-                    variant="outlined" 
+                  <Chip
+                    label={`$${course.price}`}
+                    size="small"
+                    color="primary"
+                    variant="outlined"
                   />
-                  <Chip 
-                    label={course.language} 
-                    size="small" 
-                    color="secondary" 
-                    variant="outlined" 
+                  <Chip
+                    label={course.language}
+                    size="small"
+                    color="secondary"
+                    variant="outlined"
                   />
-                  <Chip 
-                    label={`Creator: ${course.creator_id}`} 
-                    size="small" 
-                    variant="outlined" 
+                  <Chip
+                    label={`Category: ${course.category}`} // <-- Added category chip
+                    size="small"
+                    variant="outlined"
+                  />
+                  <Chip
+                    label={`Creator: ${course.creator_id}`}
+                    size="small"
+                    variant="outlined"
                   />
                 </Box>
               </CardContent>
 
-              <Box sx={{ display: "flex", gap: 1, p: 2, justifyContent: "flex-end", borderTop: 1, borderColor: "divider" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  p: 2,
+                  justifyContent: "flex-end",
+                  borderTop: 1,
+                  borderColor: "divider",
+                }}
+              >
                 <Button
                   variant="contained"
                   color="success"
-                  startIcon={actionLoading[course.course_id] ? <CircularProgress size={16} /> : <ApproveIcon />}
+                  startIcon={
+                    actionLoading[course.course_id] ? (
+                      <CircularProgress size={16} />
+                    ) : (
+                      <ApproveIcon />
+                    )
+                  }
                   onClick={() => handleApprove(course.course_id)}
                   disabled={actionLoading[course.course_id]}
                   sx={{ borderRadius: 2 }}
@@ -274,7 +381,13 @@ const AdminPendingCourses = () => {
                   variant="outlined"
                   color="error"
                   startIcon={<RejectIcon />}
-                  onClick={() => setRejectDialog({ open: true, courseId: course.course_id, reason: "" })}
+                  onClick={() =>
+                    setRejectDialog({
+                      open: true,
+                      courseId: course.course_id,
+                      reason: "",
+                    })
+                  }
                   disabled={actionLoading[course.course_id]}
                   sx={{ borderRadius: 2 }}
                 >
@@ -287,9 +400,11 @@ const AdminPendingCourses = () => {
       </Grid>
 
       {/* Reject Dialog */}
-      <Dialog 
-        open={rejectDialog.open} 
-        onClose={() => setRejectDialog({ open: false, courseId: null, reason: "" })}
+      <Dialog
+        open={rejectDialog.open}
+        onClose={() =>
+          setRejectDialog({ open: false, courseId: null, reason: "" })
+        }
         maxWidth="sm"
         fullWidth
       >
@@ -298,7 +413,8 @@ const AdminPendingCourses = () => {
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
           <Typography variant="body2" sx={{ mb: 2 }}>
-            Please provide a reason for rejecting this course. This feedback will be sent to the course creator.
+            Please provide a reason for rejecting this course. This feedback
+            will be sent to the course creator.
           </Typography>
           <TextField
             autoFocus
@@ -309,18 +425,20 @@ const AdminPendingCourses = () => {
             multiline
             rows={3}
             value={rejectDialog.reason}
-            onChange={(e) => setRejectDialog(prev => ({ ...prev, reason: e.target.value }))}
+            onChange={(e) =>
+              setRejectDialog((prev) => ({ ...prev, reason: e.target.value }))
+            }
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setRejectDialog({ open: false, courseId: null, reason: "" })}>
+          <Button
+            onClick={() =>
+              setRejectDialog({ open: false, courseId: null, reason: "" })
+            }
+          >
             Cancel
           </Button>
-          <Button 
-            color="error" 
-            onClick={handleReject}
-            variant="contained"
-          >
+          <Button color="error" onClick={handleReject} variant="contained">
             Confirm Rejection
           </Button>
         </DialogActions>
@@ -333,23 +451,42 @@ const AdminPendingCourses = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {previewDialog.type === "image" ? "Thumbnail Preview" : "Teaser Video Preview"}
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          {previewDialog.type === "image"
+            ? "Thumbnail Preview"
+            : "Teaser Video Preview"}
           <IconButton onClick={handlePreviewClose}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
+        <DialogContent
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "400px",
+          }}
+        >
           {previewDialog.type === "image" ? (
-            <img 
-              src={previewDialog.url} 
-              alt="Preview" 
-              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+            <img
+              src={previewDialog.url}
+              alt="Preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+              }}
             />
           ) : (
-            <video 
-              controls 
-              autoPlay 
+            <video
+              controls
+              autoPlay
               style={{ width: "100%", maxHeight: "400px" }}
             >
               <source src={previewDialog.url} type="video/mp4" />
@@ -365,8 +502,8 @@ const AdminPendingCourses = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert 
-          severity={snackbar.severity} 
+        <Alert
+          severity={snackbar.severity}
           sx={{ width: "100%" }}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
         >
