@@ -1,3 +1,4 @@
+// src/pages/EditCourse.js
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -15,6 +16,17 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../../api";
 
+const categories = [
+  "Cooking & Food Skills",
+  "Music & Instruments",
+  "Handicrafts & Creative Skills",
+  "Languages & Communication",
+  "Technology & Digital Skills",
+  "Repair & Technical Skills",
+  "Health & Fitness",
+  "Entrepreneurship & Business",
+];
+
 const EditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,6 +37,7 @@ const EditCourse = () => {
     description: "",
     price: "",
     language: "",
+    category: "",
     thumbnail_url: "",
     teaser_url: "",
   });
@@ -42,7 +55,6 @@ const EditCourse = () => {
 
   useEffect(() => {
     fetchCourse();
-    // eslint-disable-next-line
   }, [id]);
 
   const fetchCourse = async () => {
@@ -97,6 +109,7 @@ const EditCourse = () => {
           description: course.description,
           price: course.price,
           language: course.language,
+          category: course.category,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -196,6 +209,22 @@ const EditCourse = () => {
             {["English", "Sinhala", "Tamil"].map((lang) => (
               <MenuItem key={lang} value={lang}>
                 {lang}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          {/* Category */}
+          <TextField
+            label="Category"
+            name="category"
+            value={course.category}
+            onChange={handleChange}
+            select
+            required
+          >
+            {categories.map((cat) => (
+              <MenuItem key={cat} value={cat}>
+                {cat}
               </MenuItem>
             ))}
           </TextField>

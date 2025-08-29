@@ -73,61 +73,65 @@ const ViewCourse = () => {
       </Typography>
 
       {/* Media Section */}
-<Grid container spacing={4} sx={{ mb: 4 }} alignItems="stretch">
-  {course.thumbnail_url && (
-    <Grid item xs={12} md={6}>
-      <Card
-        sx={{
-          width: "100%",
-          height: { xs: 250, md: 300 },
-          borderRadius: 3,
-          overflow: "hidden",
-          boxShadow: 4,
-        }}
-      >
-        <CardMedia
-          component="img"
-          image={course.thumbnail_url}
-          alt={course.title}
-          sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
-      </Card>
-    </Grid>
-  )}
+      <Grid container spacing={4} sx={{ mb: 4 }} alignItems="stretch">
+        {course.thumbnail_url && (
+          <Grid item xs={12} md={6}>
+            <Card
+              sx={{
+                width: "100%",
+                height: { xs: 250, md: 300 },
+                borderRadius: 3,
+                overflow: "hidden",
+                boxShadow: 4,
+              }}
+            >
+              <CardMedia
+                component="img"
+                image={course.thumbnail_url}
+                alt={course.title}
+                sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </Card>
+          </Grid>
+        )}
 
-  {course.teaser_url && (
-    <Grid item xs={12} md={6}>
-      <Card
-        sx={{
-          width: "100%",
-          height: { xs: 250, md: 300 },
-          borderRadius: 3,
-          p: 1,
-          boxShadow: 4,
-        }}
-      >
-        <Typography variant="h6" gutterBottom sx={{ mb: 1 }}>
-          Teaser Video
-        </Typography>
-        <Box
-          component="video"
-          src={course.teaser_url}
-          controls
-          sx={{
-            width: "100%",
-            height: "calc(100% - 40px)", // leave space for title
-            borderRadius: 2,
-            objectFit: "cover",
-          }}
-        />
-      </Card>
-    </Grid>
-  )}
-</Grid>
+        {course.teaser_url && (
+          <Grid item xs={12} md={6}>
+            <Card
+              sx={{
+                width: "100%",
+                height: { xs: 250, md: 300 },
+                borderRadius: 3,
+                p: 1,
+                boxShadow: 4,
+              }}
+            >
+              <Typography variant="h6" gutterBottom sx={{ mb: 1 }}>
+                Teaser Video
+              </Typography>
+              <Box
+                component="video"
+                src={course.teaser_url}
+                controls
+                sx={{
+                  width: "100%",
+                  height: "calc(100% - 40px)",
+                  borderRadius: 2,
+                  objectFit: "cover",
+                }}
+              />
+            </Card>
+          </Grid>
+        )}
+      </Grid>
 
       {/* Course Description */}
       <Card sx={{ p: 4, mb: 4, borderRadius: 2, boxShadow: 4 }}>
-        <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", mb: 2 }}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ fontWeight: "bold", mb: 2 }}
+        >
           Description
         </Typography>
         <Typography variant="body1" sx={{ mb: 3 }}>
@@ -140,6 +144,9 @@ const ViewCourse = () => {
           </Grid>
           <Grid item>
             <Chip label={`Language: ${course.language}`} color="secondary" />
+          </Grid>
+          <Grid item>
+            <Chip label={`Category: ${course.category}`} color="default" />
           </Grid>
           <Grid item>
             <Chip label={`Purchases: ${course.purchase_count}`} color="success" />

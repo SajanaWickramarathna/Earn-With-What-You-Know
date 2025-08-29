@@ -1,5 +1,5 @@
 // src/pages/AddCourse.js
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   TextField,
   Button,
@@ -18,6 +18,18 @@ const AddCourse = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
+  // Predefined categories
+  const categories = [
+    "Cooking & Food Skills",
+    "Music & Instruments",
+    "Handicrafts & Creative Skills",
+    "Languages & Communication",
+    "Technology & Digital Skills",
+    "Repair & Technical Skills",
+    "Health & Fitness",
+    "Entrepreneurship & Business",
+  ];
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -34,13 +46,11 @@ const AddCourse = () => {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
-  // Handle text input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle file selection (preview only)
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files.length === 0) return;
@@ -55,71 +65,61 @@ const AddCourse = () => {
     }
   };
 
-  // Upload a file to server
-  const uploadFile = async (file, courseId, type) => {
-    const formDataFile = new FormData();
-    formDataFile.append(type === "thumbnail" ? "thumbnail" : "teaser", file);
-
-    const res = await api.post(`/courses/upload-${type}/${courseId}`, formDataFile, {
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
-    });
-
-    return type === "thumbnail" ? res.data.thumbnail_url : res.data.teaser_url;
-  };
-
-  // Handle form submit
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    // Step 1: create course without files
-    const res = await api.post("/courses", {
-      title: formData.title,
-      description: formData.description,
-      category: formData.category,
-      price: formData.price,
-      language: formData.language
-    }, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      // Step 1: create course
+      const res = await api.post(
+        "/courses",
+        {
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          price: formData.price,
+          language: formData.language,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-    const newCourseId = res.data.course_id;
+      const newCourseId = res.data.course_id;
 
-    // Step 2: upload thumbnail
-    if (thumbnailFile) {
-      const fd = new FormData();
-      fd.append("thumbnail", thumbnailFile);
+      // Step 2: upload thumbnail
+      if (thumbnailFile) {
+        const fd = new FormData();
+        fd.append("thumbnail", thumbnailFile);
 
-      await api.post(`/courses/upload-thumbnail/${newCourseId}`, fd, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+        await api.post(`/courses/upload-thumbnail/${newCourseId}`, fd, {
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+        });
+      }
+
+      // Step 3: upload teaser
+      if (teaserFile) {
+        const fd = new FormData();
+        fd.append("teaser", teaserFile);
+
+        await api.post(`/courses/upload-teaser/${newCourseId}`, fd, {
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+        });
+      }
+
+      setSnackbar({ open: true, message: "Course added successfully", severity: "success" });
+      setLoading(false);
+      navigate("/creator-dashboard/my-courses");
+    } catch (err) {
+      console.error(err);
+      setSnackbar({
+        open: true,
+        message: err.response?.data?.error || "Failed to add course",
+        severity: "error",
       });
+      setLoading(false);
     }
-
-    // Step 3: upload teaser
-    if (teaserFile) {
-      const fd = new FormData();
-      fd.append("teaser", teaserFile);
-
-      await api.post(`/courses/upload-teaser/${newCourseId}`, fd, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
-      });
-    }
-
-    setSnackbar({ open: true, message: "Course added successfully", severity: "success" });
-    setLoading(false);
-    navigate("/creator-dashboard/my-courses");
-  } catch (err) {
-    console.error(err);
-    setSnackbar({
-      open: true,
-      message: err.response?.data?.error || "Failed to add course",
-      severity: "error",
-    });
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <Container maxWidth="sm">
@@ -127,11 +127,7 @@ const AddCourse = () => {
         Add New Course
       </Typography>
 
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-      >
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <TextField label="Title" name="title" value={formData.title} onChange={handleChange} required />
         <TextField
           label="Description"
@@ -141,6 +137,22 @@ const AddCourse = () => {
           multiline
           rows={4}
         />
+
+        <TextField
+          select
+          label="Category"
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          required
+        >
+          {categories.map((cat) => (
+            <MenuItem key={cat} value={cat}>
+              {cat}
+            </MenuItem>
+          ))}
+        </TextField>
+
         <TextField label="Price" name="price" type="number" value={formData.price} onChange={handleChange} />
         <TextField select label="Language" name="language" value={formData.language} onChange={handleChange}>
           {["Sinhala", "Tamil", "English"].map((lang) => (

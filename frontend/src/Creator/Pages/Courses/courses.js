@@ -1,3 +1,4 @@
+// src/pages/MyCourses.js
 import React, { useEffect, useState } from "react";
 import {
   Container,
@@ -105,9 +106,9 @@ const MyCourses = () => {
                     image={course.thumbnail_url}
                     alt={course.title}
                     sx={{
-                      objectFit: "cover", // keeps aspect ratio
-                      width: "100%", // fits card width
-                      maxHeight: 180, // prevent image from stretching too tall
+                      objectFit: "cover",
+                      width: "100%",
+                      maxHeight: 180,
                     }}
                   />
                 ) : (
@@ -126,25 +127,16 @@ const MyCourses = () => {
                 )}
 
                 <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ fontWeight: 500 }}
-                  >
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 500 }}>
                     {course.title}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                     {course.description?.substring(0, 80)}...
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 2 }}
-                  >
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    Category: {course.category || "Uncategorized"}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     Price: ${course.price} | Language: {course.language}
                   </Typography>
 
