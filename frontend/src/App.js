@@ -13,6 +13,7 @@ import VerifyEmail from "./components/verifyemail";
 import ForgotPassword from "./Pages/forgotPassword";
 import ResetPassword from "./components/resetPassword";
 import Home from "./Pages/home";
+import ContactUsForm from "./Pages/ContactUsForm";
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
       <Route path="/verify/:token" element={<VerifyEmail />} />
 
       <Route path="/reset/:token" element={<ResetPassword />} />
+
+      <Route path="/contactform" element={<ContactUsForm />} />
 
       <Route
         path="/admin-dashboard/*"
