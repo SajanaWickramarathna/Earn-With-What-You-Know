@@ -14,6 +14,7 @@ import ForgotPassword from "./Pages/forgotPassword";
 import ResetPassword from "./components/resetPassword";
 import Home from "./Pages/home";
 import ContactUsForm from "./Pages/ContactUsForm";
+import Shop from "./Pages/shop";
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
       <Route path="/reset/:token" element={<ResetPassword />} />
 
       <Route path="/contactform" element={<ContactUsForm />} />
+
+      <Route path="/shop" element={<Shop />} />
 
       <Route
         path="/admin-dashboard/*"
