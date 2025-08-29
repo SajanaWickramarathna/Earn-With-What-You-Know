@@ -143,7 +143,9 @@ function Nav() {
                         ? "/admin-dashboard"
                         : userData?.role === "customer_supporter"
                         ? "/support-dashboard"
-                        : "/customer-dashboard"
+                        : userData?.role === "creator"
+                        ? "/creator-dashboard"
+                        : "/lernar-dashboard"
                     }
                     className="flex items-center space-x-1 text-gray-700 hover:text-purple-700 transition-colors duration-200"
                   >
