@@ -16,6 +16,7 @@ const orders = require("./Routes/orderRoutes");
 const tickets = require("./Routes/ticketroute");
 const notification = require("./Routes/notificationRoutes");
 const chat = require("./Routes/chatRoute");
+const contact = require("./Routes/contactroute");
 
 
 router.use("/users", userRoutes);
@@ -31,5 +32,6 @@ router.use("/orders", orders); // Order routes
 router.use("/tickets", tickets); // Ticket routes
 router.use("/notifications", notification); // Notification routes
 router.use("/chats", chat); // Chat routes
+router.use("/contact", contact); // Contact Us routes
 
 module.exports = router;
