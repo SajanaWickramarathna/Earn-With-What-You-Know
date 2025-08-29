@@ -1,12 +1,22 @@
 const Lesson = require('../Models/lessons');
 
-// Create a lesson under a course
 exports.createLesson = async (req, res) => {
   try {
     const { course_id, title, description, video_url, duration, order, is_preview } = req.body;
 
     if (!description) {
       return res.status(400).json({ message: "Lesson description is required." });
+    }
+
+    // Max lessons per course
+    const existingLessonsCount = await Lesson.countDocuments({ course_id });
+    if (existingLessonsCount >= 5) {
+      return res.status(400).json({ message: "Each course can have a maximum of 5 lessons." });
+    }
+
+    // Max lesson duration: 1.5 hours = 5400 seconds
+    if (duration > 5400) {
+      return res.status(400).json({ message: "Lesson duration cannot exceed 1 hour 30 minutes." });
     }
 
     const lesson = new Lesson({
@@ -25,6 +35,7 @@ exports.createLesson = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
 // Get all lessons for a course
 exports.getLessonsByCourse = async (req, res) => {
   try {
