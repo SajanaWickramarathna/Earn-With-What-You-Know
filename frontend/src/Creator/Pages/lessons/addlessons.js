@@ -38,26 +38,34 @@ const AddLessonPage = () => {
   const [videoFile, setVideoFile] = useState(null);
 
   useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const res = await api.get(`/courses/${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCourse(res.data);
-        setLessons(res.data.lessons || []);
-      } catch (err) {
-        console.error("Error fetching course:", err.response || err);
-        setSnackbar({
-          open: true,
-          message: "Failed to load course",
-          severity: "error",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCourse();
-  }, [courseId, token]);
+  const fetchCourse = async () => {
+    try {
+      const res = await api.get(`/courses/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCourse(res.data);
+      const existingLessons = res.data.lessons || [];
+      setLessons(existingLessons);
+
+      // Auto-set the next lesson order
+      setFormData((prev) => ({
+        ...prev,
+        order: existingLessons.length + 1, // next order number
+      }));
+    } catch (err) {
+      console.error("Error fetching course:", err.response || err);
+      setSnackbar({
+        open: true,
+        message: "Failed to load course",
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchCourse();
+}, [courseId, token]);
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
