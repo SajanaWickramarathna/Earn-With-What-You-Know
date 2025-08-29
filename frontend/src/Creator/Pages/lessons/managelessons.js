@@ -120,7 +120,7 @@ const ViewLesson = () => {
                   </Typography>
                 )}
                 <Typography variant="body2">
-                  Duration: {lesson.duration}s | Price: {lesson.price} | Order:{" "}
+                  Duration: {lesson.duration}s | Order:{" "}
                   {lesson.order}
                 </Typography>
 

@@ -107,9 +107,7 @@ const ViewLessonsPage = () => {
                   <Typography variant="body2" color="text.secondary">
                     Duration: {lesson.duration}s
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Price: ${lesson.price}
-                  </Typography>
+                  
                   <Typography variant="body2" color="text.secondary">
                     Order: {lesson.order}
                   </Typography>

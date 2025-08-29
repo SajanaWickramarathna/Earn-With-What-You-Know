@@ -31,7 +31,6 @@ const AddLessonPage = () => {
   title: "",
   description: "", // ✅ added
   duration: 0,
-  price: 0,
   order: 0,
   is_preview: false,
 });
@@ -196,13 +195,6 @@ const AddLessonPage = () => {
     type="number"
     value={formData.duration}
     InputProps={{ readOnly: true }}
-  />
-  <TextField
-    label="Price"
-    name="price"
-    type="number"
-    value={formData.price}
-    onChange={handleChange}
   />
   <TextField
     label="Order"

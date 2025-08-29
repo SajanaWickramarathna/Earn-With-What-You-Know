@@ -23,7 +23,6 @@ const EditLesson = () => {
     title: "",
     description: "",
     duration: "",
-    price: "",
     order: "",
     is_preview: false,
     video_url: "",
@@ -162,17 +161,6 @@ const EditLesson = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={4}>
-              <TextField
-                label="Price"
-                name="price"
-                type="number"
-                value={lesson.price}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
-            </Grid>
 
             <Grid item xs={12} md={4}>
               <TextField
