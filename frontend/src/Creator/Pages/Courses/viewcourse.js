@@ -149,13 +149,28 @@ const ViewCourse = () => {
             <Chip label={`Category: ${course.category}`} color="default" />
           </Grid>
           <Grid item>
-            <Chip label={`Purchases: ${course.purchase_count}`} color="success" />
+            <Chip
+              label={`Purchases: ${course.purchase_count}`}
+              color="success"
+            />
           </Grid>
           <Grid item>
             <Chip label={`Rating: ${course.average_rating}`} color="info" />
           </Grid>
           <Grid item>
             <Chip label={`Reviews: ${course.review_count}`} color="warning" />
+          </Grid>
+          <Grid item>
+            <Chip
+              label={`Lessons: ${
+                course.lessons ? course.lessons.length : 0
+              } / 5`}
+              color={
+                course.lessons && course.lessons.length >= 5
+                  ? "error"
+                  : "primary"
+              }
+            />
           </Grid>
         </Grid>
       </Card>
