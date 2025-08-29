@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Logo from "../assets/logo.png"; 
+import Logo from "../assets/logo.png";
 import ProfileIcon from "@mui/icons-material/AccountCircleRounded";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CartIcon from "@mui/icons-material/ShoppingCart";
@@ -8,7 +8,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { api } from "../api";
-
+import { useCart } from "../context/CartContext";
 
 function Nav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +17,7 @@ function Nav() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [notificationCount, setNotificationCount] = useState(0);
+  const { cartCount, fetchCartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Add scroll effect
@@ -38,6 +39,13 @@ function Nav() {
           }
         );
         setUserData(userResponse.data);
+
+        const notificationsResponse = await api.get(
+          `/notifications/user/${userResponse.data.user_id}`
+        );
+        setNotificationCount(notificationsResponse.data.length || 0);
+
+        await fetchCartCount();
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -47,8 +55,9 @@ function Nav() {
       fetchData();
     } else {
       setUserData(null);
+      setNotificationCount(0);
     }
-  }, [token]);
+  }, [token, fetchCartCount]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -136,6 +145,28 @@ function Nav() {
               </>
             ) : (
               <div className="flex items-center space-x-6">
+                <Link
+                  to="/notifications"
+                  className="relative p-2 rounded-full hover:bg-purple-50 transition-colors duration-200"
+                >
+                  <NotificationsIcon className="text-gray-700 hover:text-purple-700" />
+                  {notificationCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center transform translate-x-1 -translate-y-1">
+                      {notificationCount}
+                    </span>
+                  )}
+                </Link>
+                <Link
+                  to="/cart"
+                  className="relative p-2 rounded-full hover:bg-purple-50 transition-colors duration-200"
+                >
+                  <CartIcon className="text-gray-700 hover:text-purple-700" />
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center transform translate-x-1 -translate-y-1">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
                 <div className="flex items-center space-x-4">
                   <Link
                     to={
@@ -166,7 +197,40 @@ function Nav() {
             )}
           </div>
 
-          
+          {/* Mobile menu button */}
+          <div className="lg:hidden flex items-center">
+            {token && (
+              <div className="flex items-center mr-4 space-x-3">
+                <Link to="/notifications" className="relative">
+                  <NotificationsIcon className="text-gray-700" />
+                  {notificationCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center transform translate-x-1 -translate-y-1">
+                      {notificationCount > 9 ? "9+" : notificationCount}
+                    </span>
+                  )}
+                </Link>
+                <Link to="/cart" className="relative">
+                  <CartIcon className="text-gray-700" />
+                  {cartCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center transform translate-x-1 -translate-y-1">
+                      {cartCount > 9 ? "9+" : cartCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+            )}
+            <button
+              onClick={toggleMenu}
+              className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+            >
+              {isOpen ? (
+                <CloseIcon className="h-6 w-6 text-gray-700" />
+              ) : (
+                <MenuIcon className="h-6 w-6 text-gray-700" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -235,16 +299,17 @@ function Nav() {
           ) : (
             <>
               <Link
-                to={
-                  userData?.role === "admin"
-                    ? "/admin-dashboard"
-                    : userData?.role === "customer_supporter"
-                    ? "/support-dashboard"
-                    : "/customer-dashboard"
-                }
-                onClick={closeMenu}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-purple-700 hover:bg-purple-50 flex items-center"
-              >
+                    to={
+                      userData?.role === "admin"
+                        ? "/admin-dashboard"
+                        : userData?.role === "customer_supporter"
+                        ? "/support-dashboard"
+                        : userData?.role === "creator"
+                        ? "/creator-dashboard"
+                        : "/lernar-dashboard"
+                    }
+                    className="flex items-center space-x-1 text-gray-700 hover:text-purple-700 transition-colors duration-200"
+                  >
                 <ProfileIcon className="mr-2" />
                 My Account
               </Link>
