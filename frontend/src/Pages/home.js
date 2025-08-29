@@ -1,8 +1,10 @@
 import React from 'react';
+import Nav from '../components/navigation';
 
 const HomePage = () => {
   return (
     <div style={{ fontFamily: 'sans-serif', background: '#f6f8fb', minHeight: '100vh' }}>
+      <Nav />
       <header style={{ padding: '24px 0', background: '#3b82f6', color: '#fff', textAlign: 'center' }}>
         <h1>Earn With What You Know</h1>
         <p>Empowering you to monetize your knowledge and skills.</p>
