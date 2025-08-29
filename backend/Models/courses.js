@@ -8,6 +8,20 @@ const courseSchema = new mongoose.Schema({
   description: String,
   price: { type: Number, default: 0 },
   language: { type: String, enum: ['Sinhala', 'Tamil', 'English'], required: true },
+  category: { 
+    type: String, 
+    enum: [
+      'Cooking & Food Skills', 
+      'Music & Instruments', 
+      'Handicrafts & Creative Skills', 
+      'Languages & Communication', 
+      'Technology & Digital Skills', 
+      'Repair & Technical Skills', 
+      'Health & Fitness', 
+      'Entrepreneurship & Business'
+    ],
+    required: true 
+  },
 
   creator_id: { type: Number, required: true }, // numeric ID for quick filtering
 

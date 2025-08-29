@@ -23,23 +23,45 @@ exports.createCourse = async (req, res) => {
 };
 
 // Get all approved courses with lessons
+// Get all approved courses with filters
 exports.getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find({ status: 'approved' });
+    const { category, language, minPrice, maxPrice, minLessons, maxLessons } = req.query;
+
+    // Base filter: only approved courses
+    let filter = { status: 'approved' };
+
+    if (category) filter.category = category;
+    if (language) filter.language = language;
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    let courses = await Course.find(filter);
 
     // Fetch lessons per course
     const coursesWithLessons = await Promise.all(
       courses.map(async (course) => {
         const lessons = await Lesson.find({ course_id: course.course_id }).sort({ order: 1 });
+
+        // Lesson count filter
+        if ((minLessons && lessons.length < Number(minLessons)) ||
+            (maxLessons && lessons.length > Number(maxLessons))) {
+          return null; // exclude this course
+        }
+
         return { ...course.toObject(), lessons };
       })
     );
 
-    res.json(coursesWithLessons);
+    res.json(coursesWithLessons.filter(c => c !== null));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get course by course_id including lessons
 exports.getCourseById = async (req, res) => {
