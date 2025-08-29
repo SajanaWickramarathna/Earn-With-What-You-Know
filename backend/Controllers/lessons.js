@@ -3,7 +3,7 @@ const Lesson = require('../Models/lessons');
 // Create a lesson under a course
 exports.createLesson = async (req, res) => {
   try {
-    const { course_id, title, description, video_url, duration, price, order, is_preview } = req.body;
+    const { course_id, title, description, video_url, duration, order, is_preview } = req.body;
 
     if (!description) {
       return res.status(400).json({ message: "Lesson description is required." });
@@ -15,7 +15,6 @@ exports.createLesson = async (req, res) => {
       description,
       video_url,
       duration,
-      price,
       order,
       is_preview,
     });
@@ -26,7 +25,6 @@ exports.createLesson = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
-
 // Get all lessons for a course
 exports.getLessonsByCourse = async (req, res) => {
   try {
@@ -58,15 +56,24 @@ exports.updateLesson = async (req, res) => {
 
     const updated = await Lesson.findOneAndUpdate(
       { lesson_id: req.params.id },
-      req.body,
+      {
+        title: req.body.title,
+        description: req.body.description,
+        video_url: req.body.video_url,
+        duration: req.body.duration,
+        order: req.body.order,
+        is_preview: req.body.is_preview
+      },
       { new: true }
     );
+
     if (!updated) return res.status(404).json({ message: 'Lesson not found' });
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
+
 
 
 // Delete lesson

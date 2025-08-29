@@ -4,12 +4,11 @@ const Counter = require('./counter');
 
 const lessonSchema = new mongoose.Schema({
   lesson_id: { type: Number, unique: true },
-  course_id: { type: Number, required: true }, // link to course by numeric ID
+  course_id: { type: Number, required: true },
   title: { type: String, required: true },
-  description: { type: String, required: true }, // <-- required
+  description: { type: String, required: true },
   video_url: { type: String, required: true },
   duration: Number,
-  price: Number,
   order: Number,
   is_preview: { type: Boolean, default: false },
 }, { timestamps: true });
