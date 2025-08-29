@@ -50,7 +50,8 @@ const ManageCoursesPage = () => {
 
   const handleAddLesson = (id) =>
     navigate(`/creator-dashboard/course/${id}/add-lesson`);
-  const handleEdit = (id) => navigate(`/creator-dashboard/course/${id}/Manage-lesson`);
+  const handleEdit = (id) =>
+    navigate(`/creator-dashboard/course/${id}/Manage-lesson`);
 
   const handleViewLessons = (id) =>
     navigate(`/creator-dashboard/course/${id}/view-lessons`);
@@ -128,6 +129,14 @@ const ManageCoursesPage = () => {
                     sx={{ mb: 2 }}
                   >
                     Price: ${course.price} | Language: {course.language}
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    Lessons: {course.lessons ? course.lessons.length : 0} / 5
                   </Typography>
 
                   <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
