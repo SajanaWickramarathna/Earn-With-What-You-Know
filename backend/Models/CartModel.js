@@ -1,33 +1,22 @@
 const mongoose = require('mongoose');
-const Counter = require('./counter');
+const Schema = mongoose.Schema;
 
-const cartSchema = new mongoose.Schema({
-  cart_id: { type: Number, unique: true },
-  user_id: { type: Number, required: true }, // numeric user ID
-  courses: [
+const courseCartSchema = new Schema({
+  user_id: { type: Number, ref: 'user', required: true },
+  items: [
     {
-      course_id: { type: Number, required: true },
-      title: String,
-      price: Number,
-      quantity: { type: Number, default: 1 },
-    }
+      course_id: { type: Number, ref: 'Course', required: true },
+      quantity: { type: Number, required: true, min: 1 },
+    },
   ],
-}, { timestamps: true });
-
-// Auto-increment cart_id
-cartSchema.pre('save', async function (next) {
-  if (!this.isNew) return next();
-  try {
-    const counter = await Counter.findOneAndUpdate(
-      { name: 'cart_id' },
-      { $inc: { value: 1 } },
-      { new: true, upsert: true }
-    );
-    this.cart_id = counter.value;
-    next();
-  } catch (err) {
-    next(err);
-  }
+  total_price: { type: Number, required: true, default: 0 },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Cart', cartSchema);
+courseCartSchema.pre('save', function (next) {
+  this.updated_at = Date.now();
+  next();
+});
+
+module.exports = mongoose.model('CourseCart', courseCartSchema);

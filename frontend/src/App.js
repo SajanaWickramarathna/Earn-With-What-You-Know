@@ -15,6 +15,7 @@ import ResetPassword from "./components/resetPassword";
 import Home from "./Pages/home";
 import ContactUsForm from "./Pages/ContactUsForm";
 import Shop from "./Pages/shop";
+import CartPage from "./Pages/Cart";
 
 function App() {
   return (
@@ -36,6 +37,8 @@ function App() {
       <Route path="/contactform" element={<ContactUsForm />} />
 
       <Route path="/shop" element={<Shop />} />
+
+      <Route path="/cart" element={<CartPage />} />
 
       <Route
         path="/admin-dashboard/*"

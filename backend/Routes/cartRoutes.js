@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const cartController = require('../Controllers/cartController');
 const authMiddleware = require('../middleware/authMiddleware');
+const CartController = require('../Controllers/cartController');
 
-// All routes require logged-in user (learner)
-router.get('/', authMiddleware(['learner']), cartController.getMyCart);
-router.post('/add', authMiddleware(['learner']), cartController.addToCart);
-router.post('/remove', authMiddleware(['learner']), cartController.removeFromCart);
-router.post('/clear', authMiddleware(['learner']), cartController.clearCart);
+router.post('/addtocart', authMiddleware(['learner']), CartController.addToCart);
+router.get('/getcart/:user_id', CartController.getCart);
+router.put('/updatecartitem', CartController.updateCartItem);
+router.delete('/removefromcart', CartController.removeFromCart);
+router.delete('/clearcart/:id', CartController.clearCart);
+router.get('/count', authMiddleware(['learner']), CartController.getCartCount);
 
 module.exports = router;

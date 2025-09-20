@@ -19,6 +19,8 @@ import {
   Rating,
   Paper,
   Divider,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -130,6 +132,10 @@ const Shop = () => {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [languageFilter, setLanguageFilter] = useState("");
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
   const categoryOptions = [
     "Cooking & Food Skills",
     "Music & Instruments",
@@ -156,6 +162,28 @@ const Shop = () => {
     fetchCourses();
   }, []);
 
+  const handleAddToCart = async (course_id) => {
+    try {
+      await axios.post(
+        "http://localhost:3001/api/cart/add",
+        { course_id },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setSnackbarMessage("Course added to cart!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (err) {
+      console.error(err);
+      setSnackbarMessage("Failed to add course to cart.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title
       .toLowerCase()
@@ -179,7 +207,12 @@ const Shop = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
+      <Box
+        sx={{
+          backgroundColor: theme.palette.background.default,
+          minHeight: "100vh",
+        }}
+      >
         <Container sx={{ py: 4 }}>
           <Nav />
 
@@ -189,7 +222,8 @@ const Shop = () => {
               Explore Our Courses 🚀
             </Typography>
             <Typography variant="subtitle1" sx={{ mt: 1, maxWidth: "600px" }}>
-              Learn new skills from passionate experts and expand your knowledge with our high-quality courses.
+              Learn new skills from passionate experts and expand your knowledge
+              with our high-quality courses.
             </Typography>
           </HeroSection>
 
@@ -240,11 +274,7 @@ const Shop = () => {
           {/* Courses */}
           {filteredCourses.length === 0 ? (
             <Box sx={{ mt: 10, textAlign: "center", py: 8 }}>
-              <Typography
-                variant="h5"
-                color="text.secondary"
-                sx={{ mb: 2 }}
-              >
+              <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
                 😔 No courses match your filters.
               </Typography>
               <Typography color="text.secondary">
@@ -265,7 +295,14 @@ const Shop = () => {
                     )}
 
                     <CardContent>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 1,
+                        }}
+                      >
                         <Typography
                           variant="h6"
                           component="div"
@@ -283,10 +320,17 @@ const Shop = () => {
                           />
                         )}
                       </Box>
-                      
+
                       <Divider sx={{ my: 1 }} />
 
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 1,
+                        }}
+                      >
                         {course.category && (
                           <Chip
                             label={course.category}
@@ -302,19 +346,32 @@ const Shop = () => {
                         </Typography>
                       </Box>
 
-                      <Typography variant="body1" color="primary" fontWeight="bold" sx={{ mt: 2 }}>
+                      <Typography
+                        variant="body1"
+                        color="primary"
+                        fontWeight="bold"
+                        sx={{ mt: 2 }}
+                      >
                         Rs. {course.price}
                       </Typography>
                     </CardContent>
 
-                    <CardActions>
+                    <CardActions sx={{ gap: 1, flexDirection: "column" }}>
                       <Button
                         component={Link}
                         to={`/course/${course.course_id}`}
-                        variant="contained"
+                        variant="outlined"
                         fullWidth
                       >
                         View Course
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        fullWidth
+                        onClick={() => handleAddToCart(course.course_id)}
+                      >
+                        Add to Cart
                       </Button>
                     </CardActions>
                   </CourseCard>
@@ -322,6 +379,20 @@ const Shop = () => {
               ))}
             </Grid>
           )}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={3000}
+            onClose={() => setSnackbarOpen(false)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          >
+            <Alert
+              onClose={() => setSnackbarOpen(false)}
+              severity={snackbarSeverity}
+              sx={{ width: "100%" }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </Container>
       </Box>
     </ThemeProvider>
