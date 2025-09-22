@@ -28,6 +28,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import Nav from "../components/navigation";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { styled } from "@mui/system";
+import { api } from "../api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useCart } from "../context/CartContext";
 
 // Create a custom theme for a more modern look
 const theme = createTheme({
@@ -135,6 +139,22 @@ const Shop = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [categories, setCategories] = useState([]); 
+  const [brands, setBrands] = useState([]);
+  const [allBrands, setAllBrands] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [maxPrice, setMaxPrice] = useState(1000000);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(true);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const { fetchCartCount } = useCart();
+
+  const token = localStorage.getItem("token");
 
   const categoryOptions = [
     "Cooking & Food Skills",
@@ -162,27 +182,47 @@ const Shop = () => {
     fetchCourses();
   }, []);
 
-  const handleAddToCart = async (course_id) => {
-    try {
-      await axios.post(
-        "http://localhost:3001/api/cart/add",
-        { course_id },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      setSnackbarMessage("Course added to cart!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (err) {
-      console.error(err);
-      setSnackbarMessage("Failed to add course to cart.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
+const handleAddToCart = async (course_id) => {
+  if (!token) {
+    setSnackbarMessage("Please log in to add courses to cart.");
+    setSnackbarSeverity("warning");
+    setSnackbarOpen(true);
+    return;
+  }
+
+  try {
+    await axios.post(
+      "http://localhost:3001/api/cart/addtocart",
+      { course_id, quantity: 1 }, // <-- ONLY send course_id & quantity
+      { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then(() => {
+        toast.success("Product added to cart");
+        fetchCartCount();
+      })
+      .catch(() => {
+        toast.error("Error adding to cart");
+      });
+
+    setSnackbarMessage("Course added to cart!");
+    setSnackbarSeverity("success");
+    setSnackbarOpen(true);
+
+    // optionally update cart count in navbar
+    // fetchCartCount();
+  } catch (err) {
+    console.error("Add to cart error:", err.response?.data || err.message);
+    setSnackbarMessage(
+      err.response?.data?.message || "Failed to add course to cart."
+    );
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  }
+};
+
+
+
+
 
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title

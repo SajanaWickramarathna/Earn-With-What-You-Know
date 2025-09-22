@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const courseCartSchema = new Schema({
+const cartSchema = new Schema({
   user_id: { type: Number, ref: 'user', required: true },
   items: [
     {
-      course_id: { type: Number, ref: 'Course', required: true },
+      course_id: { type: Number, ref: 'course', required: true },
       quantity: { type: Number, required: true, min: 1 },
     },
   ],
@@ -14,9 +14,9 @@ const courseCartSchema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
-courseCartSchema.pre('save', function (next) {
+cartSchema.pre('save', function (next) {
   this.updated_at = Date.now();
   next();
 });
 
-module.exports = mongoose.model('CourseCart', courseCartSchema);
+module.exports = mongoose.model('cart', cartSchema);

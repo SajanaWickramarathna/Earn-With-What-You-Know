@@ -66,4 +66,5 @@ courseSchema.pre('save', async function (next) {
   }
 });
 
-module.exports = mongoose.model('Course', courseSchema);
+const Course = mongoose.model('course', courseSchema);
+module.exports = Course;
