@@ -14,6 +14,8 @@ const authMiddleware = (roles) => (req, res, next) => {
         const decoded = jwt.verify(token, SECRET_KEY);
         req.user = decoded;
 
+        req.user_id = decoded.id || decoded.user_id;
+
         if (!roles.includes(req.user.role)) {
             return res.status(403).json({ message: 'Access denied. You do not have permission' });
         }

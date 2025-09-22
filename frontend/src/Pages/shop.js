@@ -138,20 +138,7 @@ const Shop = () => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [categories, setCategories] = useState([]); 
-  const [brands, setBrands] = useState([]);
-  const [allBrands, setAllBrands] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedBrands, setSelectedBrands] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(1000000);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [filterOpen, setFilterOpen] = useState(true);
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");  
   const { fetchCartCount } = useCart();
 
   const token = localStorage.getItem("token");
@@ -182,47 +169,44 @@ const Shop = () => {
     fetchCourses();
   }, []);
 
-const handleAddToCart = async (course_id) => {
-  if (!token) {
-    setSnackbarMessage("Please log in to add courses to cart.");
-    setSnackbarSeverity("warning");
-    setSnackbarOpen(true);
-    return;
-  }
+  const handleAddToCart = async (course_id) => {
+    if (!token) {
+      setSnackbarMessage("Please log in to add courses to cart.");
+      setSnackbarSeverity("warning");
+      setSnackbarOpen(true);
+      return;
+    }
 
-  try {
-    await axios.post(
-      "http://localhost:3001/api/cart/addtocart",
-      { course_id, quantity: 1 }, // <-- ONLY send course_id & quantity
-      { headers: { Authorization: `Bearer ${token}` } }
-      )
-      .then(() => {
-        toast.success("Product added to cart");
-        fetchCartCount();
-      })
-      .catch(() => {
-        toast.error("Error adding to cart");
-      });
+    try {
+      await axios
+        .post(
+          "http://localhost:3001/api/cart/addtocart",
+          { course_id, quantity: 1 }, // <-- ONLY send course_id & quantity
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then(() => {
+          toast.success("Product added to cart");
+          fetchCartCount();
+        })
+        .catch(() => {
+          toast.error("Error adding to cart");
+        });
 
-    setSnackbarMessage("Course added to cart!");
-    setSnackbarSeverity("success");
-    setSnackbarOpen(true);
+      setSnackbarMessage("Course added to cart!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
 
-    // optionally update cart count in navbar
-    // fetchCartCount();
-  } catch (err) {
-    console.error("Add to cart error:", err.response?.data || err.message);
-    setSnackbarMessage(
-      err.response?.data?.message || "Failed to add course to cart."
-    );
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  }
-};
-
-
-
-
+      // optionally update cart count in navbar
+      // fetchCartCount();
+    } catch (err) {
+      console.error("Add to cart error:", err.response?.data || err.message);
+      setSnackbarMessage(
+        err.response?.data?.message || "Failed to add course to cart."
+      );
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
 
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title

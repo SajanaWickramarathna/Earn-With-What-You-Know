@@ -24,7 +24,7 @@ import {
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 
-export default function Cart() {
+export default function CourseCart() {
   const [cart, setCart] = useState(null);
   const [userData, setUserData] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -38,26 +38,23 @@ export default function Cart() {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const { fetchCartCount } = useCart();
 
-  // Helper for correct image path
   const getCourseImageSrc = (imgPath) => {
     if (!imgPath) return "https://via.placeholder.com/300x200?text=No+Image";
     if (imgPath.startsWith("http")) return imgPath;
 
-    const baseURL = api.defaults.baseURL.replace("/api", ""); // remove `/api` if present
+    const baseURL = api.defaults.baseURL.replace("/api", "");
     if (imgPath.startsWith("/uploads")) return `${baseURL}${imgPath}`;
     if (imgPath.startsWith("uploads")) return `${baseURL}/${imgPath}`;
 
     return `${baseURL}/uploads/${imgPath}`;
   };
 
-  // Show snackbar message
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
 
-  // Close snackbar
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -114,11 +111,11 @@ export default function Cart() {
           }
         });
 
-        const coursesWithDetails = await Promise.all(coursePromises);
-        const validCourses = coursesWithDetails.filter((p) => p !== null);
+        const validCourses = (await Promise.all(coursePromises)).filter(
+          (p) => p !== null
+        );
         const validCourseIds = validCourses.map((p) => p.course_id);
 
-        // Filter out invalid items from cart
         const updatedCartItems = cartData.items.filter((item) =>
           validCourseIds.includes(item.course_id)
         );
@@ -159,12 +156,9 @@ export default function Cart() {
       });
   }, [cart, courses, userData]);
 
-  // Cart actions
   const handleRemoveFromCart = (course_id) => {
     api
-      .delete("/cart/removefromcart", {
-        data: { user_id, course_id },
-      })
+      .delete("/cart/removefromcart", { data: { user_id, course_id } })
       .then((response) => {
         setCart(response.data);
         fetchCartCount();
@@ -196,11 +190,7 @@ export default function Cart() {
   const handleUpdateQuantity = (user_id, course_id, quantity) => {
     if (quantity < 1) return;
     api
-      .put("/cart/updatecartitem", {
-        user_id: userData.user_id,
-        course_id,
-        quantity,
-      })
+      .put("/cart/updatecartitem", { user_id, course_id, quantity })
       .then((response) => {
         setCart(response.data);
         fetchCartCount();
@@ -315,28 +305,15 @@ export default function Cart() {
   return (
     <div>
       <Nav />
-      <Box
-        sx={{
-          p: { xs: 2, md: 4 },
-          bgcolor: "background.default",
-          minHeight: "100vh",
-        }}
-      >
+      <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: "background.default", minHeight: "100vh" }}>
         <Box sx={{ maxWidth: 1200, mx: "auto", mt: 8 }}>
-          <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
-            sx={{ fontWeight: "bold", mb: 4 }}
-          >
-            Your Shopping Cart
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: "bold", mb: 4 }}>
+            Your Course Cart
           </Typography>
 
           <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
             {cart.items.map((item) => {
-              const course = courses.find(
-                (p) => p.course_id === item.course_id
-              );
+              const course = courses.find((p) => p.course_id === item.course_id);
               if (!course) return null;
 
               return (
@@ -344,54 +321,29 @@ export default function Cart() {
                   <Box
                     display="flex"
                     alignItems="center"
-                    sx={{
-                      p: 2,
-                      "&:hover": { bgcolor: "action.hover" },
-                      transition: "background-color 0.2s",
-                    }}
+                    sx={{ p: 2, "&:hover": { bgcolor: "action.hover" }, transition: "background-color 0.2s" }}
                   >
                     <Box
                       component="img"
                       src={getCourseImageSrc(course.images?.[0])}
                       alt={course.course_name}
-                      sx={{
-                        width: 120,
-                        height: 120,
-                        objectFit: "cover",
-                        borderRadius: 1,
-                        mr: 3,
-                      }}
+                      sx={{ width: 120, height: 120, objectFit: "cover", borderRadius: 1, mr: 3 }}
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src =
-                          "https://via.placeholder.com/300x200?text=No+Image";
+                        e.target.src = "https://via.placeholder.com/300x200?text=No+Image";
                       }}
                     />
 
                     <Box flexGrow={1}>
-                      <Typography
-                        variant="h6"
-                        component="h3"
-                        sx={{ fontWeight: "medium" }}
-                      >
+                      <Typography variant="h6" component="h3" sx={{ fontWeight: "medium" }}>
                         {course.course_name}
                       </Typography>
-                      <Typography
-                        variant="body1"
-                        color="text.secondary"
-                        sx={{ mt: 1 }}
-                      >
+                      <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
                         LKR {course.course_price.toFixed(2)}
                       </Typography>
                       <Box display="flex" alignItems="center" sx={{ mt: 2 }}>
                         <IconButton
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              user_id,
-                              item.course_id,
-                              item.quantity - 1
-                            )
-                          }
+                          onClick={() => handleUpdateQuantity(user_id, item.course_id, item.quantity - 1)}
                           disabled={item.quantity === 1}
                           color="primary"
                         >
@@ -401,24 +353,14 @@ export default function Cart() {
                           {item.quantity}
                         </Typography>
                         <IconButton
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              user_id,
-                              item.course_id,
-                              item.quantity + 1
-                            )
-                          }
+                          onClick={() => handleUpdateQuantity(user_id, item.course_id, item.quantity + 1)}
                           color="primary"
                         >
                           <AddIcon />
                         </IconButton>
                       </Box>
                     </Box>
-                    <IconButton
-                      onClick={() => handleRemoveFromCart(item.course_id)}
-                      color="error"
-                      sx={{ ml: 2 }}
-                    >
+                    <IconButton onClick={() => handleRemoveFromCart(item.course_id)} color="error" sx={{ ml: 2 }}>
                       <DeleteIcon />
                     </IconButton>
                   </Box>
@@ -428,68 +370,32 @@ export default function Cart() {
             })}
           </Paper>
 
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ mb: 4 }}
-          >
+          <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
             <Typography variant="h5" sx={{ fontWeight: "bold" }}>
               Total: LKR {totalPrice.toFixed(2)}
             </Typography>
-            <Button
-              onClick={handleClearCart}
-              variant="outlined"
-              color="error"
-              startIcon={<ClearAllIcon />}
-              size="large"
-            >
+            <Button onClick={handleClearCart} variant="outlined" color="error" startIcon={<ClearAllIcon />} size="large">
               Clear Cart
             </Button>
           </Box>
 
           <Box display="flex" flexDirection="column" gap={2}>
-            <Button
-              component={Link}
-              to="/checkout"
-              variant="contained"
-              color="primary"
-              size="large"
-              fullWidth
-              sx={{ py: 2 }}
-            >
+            <Button component={Link} to="/checkout" variant="contained" color="primary" size="large" fullWidth sx={{ py: 2 }}>
               Proceed to Checkout
             </Button>
-            <Button
-              component={Link}
-              to="/shop"
-              variant="outlined"
-              color="primary"
-              size="large"
-              fullWidth
-              sx={{ py: 2 }}
-              startIcon={<ArrowBackIcon />}
-            >
+            <Button component={Link} to="/shop" variant="outlined" color="primary" size="large" fullWidth sx={{ py: 2 }} startIcon={<ArrowBackIcon />}>
               Continue Shopping
             </Button>
           </Box>
         </Box>
       </Box>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
+      <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
+      
     </div>
   );
 }

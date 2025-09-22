@@ -9,6 +9,7 @@ router.get("/getcart/:user_id", CartController.getCart);
 router.put("/updatecartitem", CartController.updateCartItem);
 router.delete("/removefromcart", CartController.removeFromCart);
 router.delete("/clearcart/:id", CartController.clearCart);
-router.get("/count", authMiddleware(["learner"]), CartController.getCartCount);
+router.get("/getcart", authMiddleware(["learner"]), CartController.getCart);
+
 
 module.exports = router;

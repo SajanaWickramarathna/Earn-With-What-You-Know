@@ -4,21 +4,24 @@ const Course = require('../Models/courses');
 //add to cart
 exports.addToCart = async (req, res) => {
     const { course_id, quantity } = req.body;
-    const user_id = req.user_id;
+    const user_id = req.user_id; // from JWT
 
     try {
         const course = await Course.findOne({ course_id });
         if (!course) return res.status(404).json({ message: 'Course not found' });
 
         let cart = await Cart.findOne({ user_id });
-        if (!cart)  cart = new Cart({ user_id, items: [] });
+        if (!cart) cart = new Cart({ user_id, items: [] });
 
-        const existingItem = cart.items.find(item => item.course_id.toString() === course_id.toString());
+        const existingItem = cart.items.find(item => item.course_id === course_id);
         if (existingItem) {
             existingItem.quantity += quantity;
         } else {
-            cart.items.push({ course_id, quantity });
+            cart.items.push({ course_id, quantity, price: course.price });
         }
+
+        // Update total price
+        cart.total_price = cart.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
         await cart.save();
         res.status(200).json(cart);
@@ -28,9 +31,10 @@ exports.addToCart = async (req, res) => {
 };
 
 
+
 //get cart by user id
 exports.getCart = async (req, res) => {
-    const { user_id } = req.params;
+    const user_id = req.user_id; // get from JWT
     try {
         let cart = await Cart.findOne({ user_id });
         if (!cart) {
@@ -42,6 +46,7 @@ exports.getCart = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
 
 //update cart item quantity
 exports.updateCartItem = async (req, res) => {
@@ -93,7 +98,7 @@ exports.removeFromCart = async (req, res) => {
 
 //clear cart
 exports.clearCart = async (req, res) => {
-    const { user_id } = req.params;
+    const user_id = req.user_id; // from JWT
     try {
         await Cart.findOneAndDelete({ user_id });
         res.status(200).json({ message: 'Cart cleared' });
@@ -103,9 +108,10 @@ exports.clearCart = async (req, res) => {
 };
 
 
+
 //get cart count (sum of quantities) for a user
 exports.getCartCount = async (req, res) => {
-    const user_id = req.params.user.id;
+    const user_id = req.user_id; // get from JWT
     try {
         const cart = await Cart.findOne({ user_id });
         if (!cart) return res.status(200).json({ count: 0 });
