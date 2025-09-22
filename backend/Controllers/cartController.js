@@ -98,14 +98,16 @@ exports.removeFromCart = async (req, res) => {
 
 //clear cart
 exports.clearCart = async (req, res) => {
-    const user_id = req.user_id; // from JWT
-    try {
-        await Cart.findOneAndDelete({ user_id });
-        res.status(200).json({ message: 'Cart cleared' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+  const user_id = req.params.id; // from URL
+  try {
+    await Cart.findOneAndDelete({ user_id });
+    res.status(200).json({ message: "Cart cleared" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
+
+
 
 
 
