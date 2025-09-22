@@ -21,6 +21,8 @@ import {
   ArrowBack as ArrowBackIcon,
   ClearAll as ClearAllIcon,
 } from "@mui/icons-material";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Cart() {
   const [cart, setCart] = useState(null);
@@ -32,7 +34,7 @@ export default function Cart() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const { fetchCartCount } = useCart();
+  const { fetchCartCount, setCartCount } = useCart();
 
   const token = localStorage.getItem("token");
 
@@ -138,44 +140,46 @@ export default function Cart() {
   }, [cart, courses, userData]);
 
   // Cart actions
-  const handleRemoveFromCart = (course_id) => {
-    api
-      .delete("/cart/removefromcart", {
-        data: { user_id: userData.user_id, course_id },
-      })
-      .then((res) => {
-        setCart(res.data);
-        fetchCartCount();
-        showSnackbar("Course removed from cart");
-      })
-      .catch(() => showSnackbar("Failed to remove course", "error"));
-  };
+  // Remove from cart
+const handleRemoveFromCart = (course_id) => {
+  api
+    .delete("/cart/removefromcart", {
+      data: { user_id: userData.user_id, course_id },
+    })
+    .then(res => {
+      setCart(res.data);
+      const newCount = res.data.items.reduce((sum, item) => sum + item.quantity, 0);
+      setCartCount(newCount); // instant update
+    })
+    .catch(() => toast.error("Failed to remove course"));
+};
 
-  const handleClearCart = () => {
-    api
-      .delete(`/cart/clearcart/${userData.user_id}`)
-      .then(() => {
-        setCart(null);
-        fetchCartCount();
-        showSnackbar("Cart cleared");
-      })
-      .catch(() => showSnackbar("Failed to clear cart", "error"));
-  };
+// Clear cart
+const handleClearCart = () => {
+  api.delete(`/cart/clearcart/${userData.user_id}`)
+    .then(() => {
+      setCart(null);
+      setCartCount(0); // instant update
+    })
+    .catch(() => toast.error("Failed to clear cart"));
+};
 
-  const handleUpdateQuantity = (course_id, quantity) => {
-    if (quantity < 1) return;
-    api
-      .put("/cart/updatecartitem", {
-        user_id: userData.user_id,
-        course_id,
-        quantity,
-      })
-      .then((res) => {
-        setCart(res.data);
-        fetchCartCount();
-      })
-      .catch(() => showSnackbar("Failed to update quantity", "error"));
-  };
+// Update quantity
+const handleUpdateQuantity = (course_id, quantity) => {
+  if (quantity < 1) return;
+  api.put("/cart/updatecartitem", {
+    user_id: userData.user_id,
+    course_id,
+    quantity,
+  })
+  .then(res => {
+    setCart(res.data);
+    const newCount = res.data.items.reduce((sum, item) => sum + item.quantity, 0);
+    setCartCount(newCount); // instant update
+  })
+  .catch(() => toast.error("Failed to update quantity"));
+};
+
 
   if (!token)
     return (

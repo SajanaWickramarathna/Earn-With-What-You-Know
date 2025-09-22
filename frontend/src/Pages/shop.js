@@ -29,7 +29,7 @@ import Nav from "../components/navigation";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { styled } from "@mui/system";
 import { api } from "../api";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useCart } from "../context/CartContext";
 
@@ -139,8 +139,7 @@ const Shop = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");  
-  const { fetchCartCount } = useCart();
-
+  const { fetchCartCount, setCartCount } = useCart();
   const token = localStorage.getItem("token");
 
   const categoryOptions = [
@@ -170,43 +169,28 @@ const Shop = () => {
   }, []);
 
   const handleAddToCart = async (course_id) => {
-    if (!token) {
-      setSnackbarMessage("Please log in to add courses to cart.");
-      setSnackbarSeverity("warning");
-      setSnackbarOpen(true);
-      return;
-    }
+  if (!token) {
+    toast.warning("Please log in to add courses to cart.");
+    return;
+  }
 
-    try {
-      await axios
-        .post(
-          "http://localhost:3001/api/cart/addtocart",
-          { course_id, quantity: 1 }, // <-- ONLY send course_id & quantity
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        .then(() => {
-          toast.success("Product added to cart");
-          fetchCartCount();
-        })
-        .catch(() => {
-          toast.error("Error adding to cart");
-        });
+  try {
+    await api.post(
+      "/cart/addtocart",
+      { course_id, quantity: 1 },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      setSnackbarMessage("Course added to cart!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+    // Instant update in navbar
+    setCartCount(prev => prev + 1);
 
-      // optionally update cart count in navbar
-      // fetchCartCount();
-    } catch (err) {
-      console.error("Add to cart error:", err.response?.data || err.message);
-      setSnackbarMessage(
-        err.response?.data?.message || "Failed to add course to cart."
-      );
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
+    toast.success("Course added to cart!");
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.message || "Failed to add to cart.");
+  }
+};
+
 
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title
