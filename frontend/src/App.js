@@ -16,6 +16,7 @@ import Home from "./Pages/home";
 import ContactUsForm from "./Pages/ContactUsForm";
 import Shop from "./Pages/shop";
 import CartPage from "./Pages/Cart";
+import Notifications from "./Pages/notifications";
 
 function App() {
   return (
@@ -39,6 +40,8 @@ function App() {
       <Route path="/shop" element={<Shop />} />
 
       <Route path="/cart" element={<CartPage />} />
+
+      <Route path="/notifications" element={<Notifications />} />
 
       <Route
         path="/admin-dashboard/*"
