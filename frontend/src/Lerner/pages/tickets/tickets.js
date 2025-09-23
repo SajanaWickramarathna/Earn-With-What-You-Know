@@ -238,7 +238,7 @@ function TicketUserDash() {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => navigate('/creator-dashboard/addticket', { state: { data: userData } })}
+          onClick={() => navigate('/learner-dashboard/addticket', { state: { data: userData } })}
         >
           Create New Ticket
         </Button>
