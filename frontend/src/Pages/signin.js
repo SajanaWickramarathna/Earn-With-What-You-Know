@@ -47,7 +47,7 @@ export default function SignIn() {
       // Dashboard redirection based on role
       const dashboardPaths = {
         'admin': '/admin-dashboard',
-        'learner': '/lernar-dashboard',
+        'learner': '/learner-dashboard',
         'creator': '/creator-dashboard',
         'customer_supporter': '/support-dashboard',
       };
