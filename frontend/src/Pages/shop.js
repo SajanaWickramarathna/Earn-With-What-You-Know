@@ -19,8 +19,6 @@ import {
   Rating,
   Paper,
   Divider,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -29,31 +27,21 @@ import Nav from "../components/navigation";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { styled } from "@mui/system";
 import { api } from "../api";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useCart } from "../context/CartContext";
 
-// Create a custom theme for a more modern look
+// Custom theme
 const theme = createTheme({
   palette: {
-    primary: {
-      main: "#4a90e2", // A modern blue
-    },
-    secondary: {
-      main: "#50e3c2", // A vibrant teal
-    },
-    background: {
-      default: "#f4f7f9", // A light grey background
-    },
+    primary: { main: "#4a90e2" },
+    secondary: { main: "#50e3c2" },
+    background: { default: "#f4f7f9" },
   },
   typography: {
     fontFamily: ["Poppins", "sans-serif"].join(","),
-    h3: {
-      fontWeight: 700,
-    },
-    h5: {
-      fontWeight: 600,
-    },
+    h3: { fontWeight: 700 },
+    h5: { fontWeight: 600 },
   },
   components: {
     MuiCard: {
@@ -81,7 +69,7 @@ const theme = createTheme({
   },
 });
 
-// Styled component for a more dynamic hero section
+// Styled components
 const HeroSection = styled(Box)(({ theme }) => ({
   textAlign: "center",
   marginBottom: theme.spacing(6),
@@ -97,7 +85,6 @@ const HeroSection = styled(Box)(({ theme }) => ({
   overflow: "hidden",
 }));
 
-// Styled component for a cleaner filter bar
 const FilterBar = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   marginBottom: theme.spacing(4),
@@ -119,29 +106,19 @@ const CourseCard = styled(Card)(({ theme }) => ({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },
-  "& .MuiCardContent-root": {
-    padding: theme.spacing(2),
-    flexGrow: 1,
-  },
-  "& .MuiCardActions-root": {
-    padding: theme.spacing(2),
-  },
+  "& .MuiCardContent-root": { padding: theme.spacing(2), flexGrow: 1 },
+  "& .MuiCardActions-root": { padding: theme.spacing(2) },
 }));
 
 const Shop = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [languageFilter, setLanguageFilter] = useState("");
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");  
   const { fetchCartCount } = useCart();
   const token = localStorage.getItem("token");
-  
 
   const categoryOptions = [
     "Cooking & Food Skills",
@@ -154,6 +131,7 @@ const Shop = () => {
     "Entrepreneurship & Business",
   ];
 
+  // Fetch courses
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -161,48 +139,41 @@ const Shop = () => {
         setCourses(data);
       } catch (err) {
         console.error("Error fetching courses:", err);
+        toast.error("Failed to fetch courses. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchCourses();
   }, []);
 
+  // Add to cart handler
   const handleAddToCart = async (course_id) => {
-  if (!token) {
-    toast.warning("Please log in to add courses to cart.");
-    return;
-  }
-  
-  api
-  .post(
-    "/cart/addtocart",
-    { course_id, quantity: 1 },
-    { headers: { Authorization: `Bearer ${token}` } }
-  )
-  .then(() => {
-    toast.success("Course added to cart!");
-    fetchCartCount(); // Refresh cart count from server
-  })
-  .catch((err) => {
-    toast.error(err.response?.data?.message || "Failed to add to cart.");
-    console.error(err);
-  });
+    if (!token) {
+      toast.warning("Please log in to add courses to cart.");
+      return;
+    }
 
-  
-};
+    api
+      .post(
+        "/cart/addtocart",
+        { course_id, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then(() => {
+        toast.success("Course added to cart!");
+        fetchCartCount(); // Refresh cart count
+      })
+      .catch((err) => {
+        toast.error(err.response?.data?.message || "Failed to add to cart.");
+        console.error(err);
+      });
+  };
 
   const filteredCourses = courses.filter((course) => {
-    const matchesSearch = course.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesCategory = categoryFilter
-      ? course.category === categoryFilter
-      : true;
-    const matchesLanguage = languageFilter
-      ? course.language === languageFilter
-      : true;
+    const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = categoryFilter ? course.category === categoryFilter : true;
+    const matchesLanguage = languageFilter ? course.language === languageFilter : true;
     return matchesSearch && matchesCategory && matchesLanguage;
   });
 
@@ -216,14 +187,23 @@ const Shop = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          backgroundColor: theme.palette.background.default,
-          minHeight: "100vh",
-        }}
-      >
+      <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
         <Container sx={{ py: 4 }}>
           <Nav />
+
+          {/* ToastContainer */}
+          <ToastContainer
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+          />
 
           {/* Hero Section */}
           <HeroSection>
@@ -252,13 +232,7 @@ const Shop = () => {
                 ),
               }}
             />
-
-            <Select
-              fullWidth
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              displayEmpty
-            >
+            <Select fullWidth value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} displayEmpty>
               <MenuItem value="">All Categories</MenuItem>
               {categoryOptions.map((cat) => (
                 <MenuItem key={cat} value={cat}>
@@ -266,13 +240,7 @@ const Shop = () => {
                 </MenuItem>
               ))}
             </Select>
-
-            <Select
-              fullWidth
-              value={languageFilter}
-              onChange={(e) => setLanguageFilter(e.target.value)}
-              displayEmpty
-            >
+            <Select fullWidth value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)} displayEmpty>
               <MenuItem value="">All Languages</MenuItem>
               <MenuItem value="English">English</MenuItem>
               <MenuItem value="Sinhala">Sinhala</MenuItem>
@@ -286,68 +254,30 @@ const Shop = () => {
               <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
                 😔 No courses match your filters.
               </Typography>
-              <Typography color="text.secondary">
-                Try adjusting your search or filter options.
-              </Typography>
+              <Typography color="text.secondary">Try adjusting your search or filter options.</Typography>
             </Box>
           ) : (
             <Grid container spacing={4}>
               {filteredCourses.map((course) => (
                 <Grid item xs={12} sm={6} md={4} key={course.course_id}>
                   <CourseCard>
-                    {course.thumbnail_url && (
-                      <CardMedia
-                        component="img"
-                        image={course.thumbnail_url}
-                        alt={course.title}
-                      />
-                    )}
-
+                    {course.thumbnail_url && <CardMedia component="img" image={course.thumbnail_url} alt={course.title} />}
                     <CardContent>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mb: 1,
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          component="div"
-                          fontWeight="bold"
-                          noWrap
-                        >
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Typography variant="h6" component="div" fontWeight="bold" noWrap>
                           {course.title}
                         </Typography>
-                        {course.rating && (
-                          <Rating
-                            value={course.rating}
-                            readOnly
-                            precision={0.5}
-                            size="small"
-                          />
-                        )}
+                        {course.rating && <Rating value={course.rating} readOnly precision={0.5} size="small" />}
                       </Box>
 
                       <Divider sx={{ my: 1 }} />
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mb: 1,
-                        }}
-                      >
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                         {course.category && (
                           <Chip
                             label={course.category}
                             size="small"
-                            sx={{
-                              backgroundColor: theme.palette.secondary.light,
-                              color: theme.palette.secondary.dark,
-                            }}
+                            sx={{ backgroundColor: theme.palette.secondary.light, color: theme.palette.secondary.dark }}
                           />
                         )}
                         <Typography variant="caption" color="text.secondary">
@@ -355,37 +285,22 @@ const Shop = () => {
                         </Typography>
                       </Box>
 
-                      <Typography
-                        variant="body1"
-                        color="primary"
-                        fontWeight="bold"
-                        sx={{ mt: 2 }}
-                      >
+                      <Typography variant="body1" color="primary" fontWeight="bold" sx={{ mt: 2 }}>
                         Rs. {course.price}
                       </Typography>
                     </CardContent>
 
                     <CardActions sx={{ gap: 1, flexDirection: "column" }}>
-                      <Button
-                        component={Link}
-                        to={`/course/${course.course_id}`}
-                        variant="outlined"
-                        fullWidth
-                      >
+                      <Button component={Link} to={`/course/${course.course_id}`} variant="outlined" fullWidth>
                         View Course
                       </Button>
                       <Button
                         variant="contained"
-                        
-                        className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg transition ${
-                          token
-                            ? "bg-blue-600 hover:bg-blue-700 text-white"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        }`}
-                        title={!token ? "Please login to add to cart" : ""}
+                        disabled={!token}
                         onClick={() => handleAddToCart(course.course_id)}
+                        fullWidth
                       >
-                        Add to Cart
+                        {token ? "Add to Cart" : "Login to Add"}
                       </Button>
                     </CardActions>
                   </CourseCard>
@@ -393,20 +308,6 @@ const Shop = () => {
               ))}
             </Grid>
           )}
-          <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={3000}
-            onClose={() => setSnackbarOpen(false)}
-            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          >
-            <Alert
-              onClose={() => setSnackbarOpen(false)}
-              severity={snackbarSeverity}
-              sx={{ width: "100%" }}
-            >
-              {snackbarMessage}
-            </Alert>
-          </Snackbar>
         </Container>
       </Box>
     </ThemeProvider>
