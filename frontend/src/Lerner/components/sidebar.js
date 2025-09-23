@@ -114,7 +114,7 @@ export default function Sidebar() {
             },
             {
               name: "My Courses",
-              path: "/learner-dashboard",
+              path: "/learner-dashboard/courses",
               icon: <LibraryBooksIcon />,
             },
             {
