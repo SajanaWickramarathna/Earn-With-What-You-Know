@@ -19,7 +19,9 @@ import {
   Remove as RemoveIcon,
   Add as AddIcon,
   ArrowBack as ArrowBackIcon,
+  ShoppingCart as ShoppingCartIcon,
   ClearAll as ClearAllIcon,
+  CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -247,25 +249,25 @@ export default function Cart() {
       });
   };
 
-    // Update quantity
-    const handleUpdateQuantity = (user_id, course_id, quantity) => {
+  // Update quantity
+  const handleUpdateQuantity = (user_id, course_id, quantity) => {
     if (quantity < 1) return;
     api
-    .put("/cart/updatecartitem", {
+      .put("/cart/updatecartitem", {
         user_id,
         course_id,
         quantity,
-        })
-    .then((response) => {
+      })
+      .then((response) => {
         setCart(response.data);
-        fetchCartCount(); 
-    })
-    .catch(() => {
+        fetchCartCount();
+      })
+      .catch(() => {
         setError("Failed to update quantity");
         showSnackbar("Failed to update quantity", "error");
-    });
-    };
-    
+      });
+  };
+
   {
     /*const handleRemoveFromCart = (course_id) => {
     api
@@ -315,144 +317,271 @@ export default function Cart() {
   };*/
   }
 
-  if (!token)
+  // Render logic
+  if (!token) {
     return (
-      <Box textAlign="center" mt={10}>
-        <Typography variant="h5">Please log in to view your cart</Typography>
-        <Button
-          component={Link}
-          to="/signin"
-          variant="contained"
-          sx={{ mt: 2 }}
+      <div>
+        <Nav />
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="80vh"
+          p={4}
+          bgcolor="background.default"
         >
-          Log In
-        </Button>
-      </Box>
+          <ShoppingCartIcon color="disabled" sx={{ fontSize: 80, mb: 2 }} />
+          <Typography variant="h5" color="textSecondary" gutterBottom>
+            Please log in to view your cart
+          </Typography>
+          <Button
+            component={Link}
+            to="/signin"
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ mt: 3 }}
+            startIcon={<CheckCircleIcon />}
+          >
+            Log in
+          </Button>
+        </Box>
+      </div>
     );
+  }
 
-  if (isLoading)
+  if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" mt={10}>
-        <CircularProgress />
-      </Box>
+      <div>
+        <Nav />
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="80vh"
+        >
+          <CircularProgress size={60} />
+        </Box>
+      </div>
     );
-  if (!cart || cart.items.length === 0)
+  }
+
+  if (error) {
     return (
-      <Box textAlign="center" mt={10}>
-        <Typography variant="h5">Your cart is empty</Typography>
-        <Button component={Link} to="/shop" variant="contained" sx={{ mt: 2 }}>
-          Back to shop
-        </Button>
-      </Box>
+      <div>
+        <Nav />
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="80vh"
+        >
+          <Alert severity="error" sx={{ maxWidth: 500 }}>
+            {error}
+          </Alert>
+        </Box>
+      </div>
     );
+  }
+
+  if (!cart || cart.items.length === 0) {
+    return (
+      <div>
+        <Nav />
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="80vh"
+          p={4}
+          bgcolor="background.default"
+        >
+          <ShoppingCartIcon color="disabled" sx={{ fontSize: 80, mb: 2 }} />
+          <Typography variant="h5" color="textSecondary" gutterBottom>
+            Your cart is empty
+          </Typography>
+          <Button
+            component={Link}
+            to="/shop"
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ mt: 3 }}
+            startIcon={<ArrowBackIcon />}
+          >
+            Back to shop
+          </Button>
+        </Box>
+      </div>
+    );
+  }
 
   return (
     <div>
       <Nav />
-      <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
-        <Typography variant="h4" gutterBottom>
-          Your Cart
-        </Typography>
-
-        <Paper sx={{ p: 2, mb: 4 }}>
-          {cart.items.map((item) => {
-            const course = courses.find((c) => c.course_id === item.course_id);
-            if (!course) return null;
-
-            return (
-              <React.Fragment key={item.course_id}>
-                <Box display="flex" alignItems="center" sx={{ p: 1 }}>
-                  <Box
-                    component="img"
-                    src={getCourseImageSrc(course.thumbnail_url)}
-                    alt={course.title}
-                    sx={{ width: 120, height: 80, objectFit: "cover", mr: 2 }}
-                  />
-                  <Box flexGrow={1}>
-                    <Typography variant="h6">{course.title}</Typography>
-                    <Typography>LKR {course.price.toFixed(2)}</Typography>
-                    <Box display="flex" alignItems="center" mt={1}>
-                      <IconButton
-                        onClick={() =>
-                          handleUpdateQuantity(
-                            item.course_id,
-                            item.quantity - 1
-                          )
-                        }
-                        disabled={item.quantity === 1}
-                      >
-                        <RemoveIcon />
-                      </IconButton>
-                      <Typography mx={1}>{item.quantity}</Typography>
-                      <IconButton
-                        onClick={() =>
-                          handleUpdateQuantity(
-                            item.course_id,
-                            item.quantity + 1
-                          )
-                        }
-                      >
-                        <AddIcon />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleRemoveFromCart(item.course_id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-                <Divider />
-              </React.Fragment>
-            );
-          })}
-        </Paper>
-
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="h5">
-            Total: LKR {totalPrice.toFixed(2)}
-          </Typography>
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<ClearAllIcon />}
-            onClick={handleClearCart}
-          >
-            Clear Cart
-          </Button>
-        </Box>
-
-        <Box display="flex" gap={2}>
-          <Button component={Link} to="/checkout" variant="contained" fullWidth>
-            Proceed to Checkout
-          </Button>
-          <Button
-            component={Link}
-            to="/shop"
-            variant="outlined"
-            fullWidth
-            startIcon={<ArrowBackIcon />}
-          >
-            Continue Shopping
-          </Button>
-        </Box>
-      </Box>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleSnackbarClose}
+      <Box
+        sx={{
+          p: { xs: 2, md: 4 },
+          bgcolor: "background.default",
+          minHeight: "100vh",
+        }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+        <Box sx={{ maxWidth: 1200, mx: "auto", mt: 8 }}>
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            sx={{ fontWeight: "bold", mb: 4 }}
+          >
+            Your Shopping Cart
+          </Typography>
+
+          <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+            {cart.items.map((item) => {
+              const course = courses.find(
+                (c) => c.course_id === item.course_id
+              );
+              if (!course) return null;
+
+              return (
+                <React.Fragment key={item.course_id}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    sx={{
+                      p: 2,
+                      "&:hover": { bgcolor: "action.hover" },
+                      transition: "background-color 0.2s",
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={getCourseImageSrc(course.thumbnail_url)}
+                      alt={course.title}
+                      sx={{
+                        width: 120,
+                        height: 120,
+                        objectFit: "cover",
+                        borderRadius: 1,
+                        mr: 3,
+                      }}
+                    />
+                    <Box flexGrow={1}>
+                      <Typography
+                        variant="h6"
+                        component="h3"
+                        sx={{ fontWeight: "medium" }}
+                      >
+                        {course.title}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        color="text.secondary"
+                        sx={{ mt: 1 }}
+                      >
+                        LKR {course.price.toFixed(2)}
+                      </Typography>
+                      <Box display="flex" alignItems="center" mt={2}>
+                        <IconButton
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              item.course_id,
+                              item.quantity - 1
+                            )
+                          }
+                          disabled={item.quantity === 1}
+                          color="primary"
+                        >
+                          <RemoveIcon />
+                        </IconButton>
+                        <Typography mx={1}>{item.quantity}</Typography>
+                        <IconButton
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              item.course_id,
+                              item.quantity + 1
+                            )
+                          }
+                          color="primary"
+                        >
+                          <AddIcon />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                    <IconButton
+                      color="error"
+                      onClick={() => handleRemoveFromCart(item.course_id)}
+                      sx={{ ml: 2 }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                  <Divider sx={{ my: 1 }} />
+                </React.Fragment>
+              );
+            })}
+          </Paper>
+
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{ mb: 4 }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+              Total: LKR {totalPrice.toFixed(2)}
+            </Typography>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<ClearAllIcon />}
+              onClick={handleClearCart}
+              size="large"
+            >
+              Clear Cart
+            </Button>
+          </Box>
+
+          <Box display="flex" flexDirection="column" gap={2}>
+            <Button
+              component={Link}
+              to="/checkout"
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth
+              sx={{ py: 2 }}
+            >
+              Proceed to Checkout
+            </Button>
+            <Button
+              component={Link}
+              to="/shop"
+              variant="outlined"
+              fullWidth
+              color="primary"
+              size="large"
+              sx={{ py: 2 }}
+              startIcon={<ArrowBackIcon />}
+            >
+              Continue Shopping
+            </Button>
+          </Box>
+        </Box>
+
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={4000}
+          onClose={handleSnackbarClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </Box>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { api } from "../api";
 
 const CartContext = createContext();
@@ -6,29 +6,27 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
 
-  // Load cart from backend when app loads or user logs in
-  useEffect(() => {
-    const fetchCart = async () => {
-      const user_id = localStorage.getItem("user_id"); // or however you store it
-      if (user_id) {
-        try {
-          const res = await api.get(`/cart/${user_id}`);
-          const items = res.data?.items || [];
-          const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
-          setCartCount(totalQty);
-        } catch (err) {
-          console.error("Error fetching cart:", err);
-        }
-      } else {
-        setCartCount(0); // reset if no user
-      }
-    };
-
-    fetchCart();
-  }, []); // run on mount (refresh / login)
+  const fetchCartCount = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setCartCount(0);
+      return;
+    }
+    
+    try {
+      const response = await api.get("/cart/getcart", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log("Cart count response:", response.data);
+      setCartCount(response.data.items?.length || 0);
+    } catch (error) {
+      console.error("Error fetching cart count:", error);
+      setCartCount(0);
+    }
+  };
 
   return (
-    <CartContext.Provider value={{ cartCount, setCartCount }}>
+    <CartContext.Provider value={{ cartCount, fetchCartCount }}>
       {children}
     </CartContext.Provider>
   );
