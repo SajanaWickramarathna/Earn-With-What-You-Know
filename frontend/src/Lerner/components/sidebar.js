@@ -3,13 +3,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Logout } from "@mui/icons-material";
 import DashboardIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 import AccountCircleIcon from "@mui/icons-material/AccountCircleOutlined";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCartOutlined";
-import OrdersIcon from "@mui/icons-material/ShoppingBag";
+import Shop2Icon from '@mui/icons-material/Shop2';
 import NotificationIcon from "@mui/icons-material/Notifications";
 import TicketIcon from "@mui/icons-material/ListAltOutlined";
 import PlusOneIcon from "@mui/icons-material/PlusOneOutlined";
-import SettingIcon from "@mui/icons-material/SettingsOutlined";
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import SchoolIcon from '@mui/icons-material/School';
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooksOutlined";
+import HistoryIcon from '@mui/icons-material/History';
 import { api } from "../../api";
 import { CircularProgress } from "@mui/material";
 
@@ -114,6 +114,11 @@ export default function Sidebar() {
               icon: <DashboardIcon />,
             },
             {
+              name: "My Courses",
+              path: "/customer-dashboard",
+              icon: <LibraryBooksIcon />,
+            },
+            {
               name: "Profile",
               path: "/customer-dashboard/profile",
               icon: <AccountCircleIcon />,
@@ -121,17 +126,17 @@ export default function Sidebar() {
             {
               name: "Cart",
               path: "/customer-dashboard/cart",
-              icon: <ShoppingCartIcon />,
+              icon: <Shop2Icon />,
             },
             {
-              name: "Orders",
+              name: "Purchase history",
               path: "/customer-dashboard/orders",
-              icon: <OrdersIcon />,
+              icon: <HistoryIcon />,
             },
             {
-              name: "Delivery",
+              name: "learning summary",
               path: "/customer-dashboard/delivery",
-              icon: <LocalShippingIcon />,
+              icon: <SchoolIcon />,
             },
             {
               name: "Notifications",
@@ -171,27 +176,6 @@ export default function Sidebar() {
             </li>
           ))}
         </ul>
-
-        <hr className="border-t border-blue-100 my-4" />
-
-        {/* Settings */}
-        <ul>
-          <li>
-            <button
-              onClick={() => handleNavigation("/customer-dashboard/settings")}
-              className={`w-full flex items-center py-3 px-4 rounded-lg transition-all duration-200 ${
-                location.pathname === "/customer-dashboard/settings"
-                  ? "bg-blue-100 text-blue-700 font-medium"
-                  : "hover:bg-blue-50 text-blue-800"
-              }`}
-            >
-              <span className="mr-3 text-blue-600">
-                <SettingIcon />
-              </span>
-              Settings
-            </button>
-          </li>
-        </ul>
       </nav>
 
       {/* Footer & Logout */}
@@ -209,7 +193,7 @@ export default function Sidebar() {
         </button>
 
         <footer className="mt-6 text-xs text-blue-400 text-center">
-          <p className="mb-1">&copy; {new Date().getFullYear()} DROPship</p>
+          <p className="mb-1">&copy; {new Date().getFullYear()} EWWYK</p>
           <p>All rights reserved</p>
           <p className="mt-2 text-blue-300">
             Developed by Sajana Wickramarathna
