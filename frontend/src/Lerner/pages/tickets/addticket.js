@@ -72,7 +72,7 @@ function AddTicket() {
     api
       .post("/tickets", input)
       .then(() => {
-        navigate("/creator-dashboard");
+        navigate("/learner-dashboard");
       })
       .catch((error) => {
         console.error("There was an error creating the ticket!", error);

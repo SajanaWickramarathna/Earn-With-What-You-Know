@@ -1,6 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import Sidebar from "../Lerner/components/sidebar";
 import Header from "../Lerner/components/header";
+import AddTicket from "../Lerner/pages/tickets/addticket";
+import ViweTicket from "../Lerner/pages/tickets/viewticket";
+import ViewallTicket from "../Lerner/pages/tickets/tickets";
 
 export default function LearnerDashboard() {
     return (
@@ -17,7 +20,9 @@ export default function LearnerDashboard() {
          <Header/>
         </div>
             <Routes>
-            {/* Define learner-specific routes here */}
+             <Route path="/tickets" element={<ViewallTicket />} />
+             <Route path="/viewticket/:id" element={<ViweTicket />} />
+             <Route path="/addticket" element={<AddTicket />} />
             </Routes>
         </div>
         </div>
