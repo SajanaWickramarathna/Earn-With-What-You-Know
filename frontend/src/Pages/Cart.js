@@ -28,13 +28,12 @@ export default function Cart() {
   const [cart, setCart] = useState(null);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
   const [courses, setCourses] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const { fetchCartCount, setCartCount } = useCart();
+  const { setCartCount } = useCart();
   const [cartLoading, setCartLoading] = useState(true);
 
 
@@ -84,27 +83,27 @@ export default function Cart() {
   const fetchCart = async () => {
     setCartLoading(true);
     try {
+      // 1️⃣ Fetch cart
       const res = await api.get("/cart/getcart", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const cartData = res.data;
 
-      const coursePromises = cartData.items.map(async (item) => {
-        try {
-          const courseRes = await api.get(`/courses/${item.course_id}`);
-          return courseRes.data;
-        } catch {
-          return null;
-        }
-      });
+      if (cartData.items.length === 0) {
+        setCart(cartData);
+        setCourses([]);
+        setCartLoading(false);
+        return;
+      }
 
-      const validCourses = (await Promise.all(coursePromises)).filter(
-        (c) => c !== null
-      );
-      const validCourseIds = validCourses.map((c) => c.course_id);
+      // 2️⃣ Fetch all course details in one request
+      const ids = cartData.items.map(item => item.course_id).join(',');
+      const coursesRes = await api.get(`/courses?ids=${ids}`);
+      const validCourses = coursesRes.data;
 
-      cartData.items = cartData.items.filter((item) =>
+      // 3️⃣ Filter cart items that exist
+      const validCourseIds = validCourses.map(c => c.course_id);
+      cartData.items = cartData.items.filter(item =>
         validCourseIds.includes(item.course_id)
       );
 
@@ -121,29 +120,24 @@ export default function Cart() {
   fetchCart();
 }, [userData]);
 
-  // Recalculate total price
-  useEffect(() => {
-    if (!cart || !courses) return;
 
-    const total = cart.items.reduce((acc, item) => {
-      const course = courses.find(
-        (c) => c.course_id === Number(item.course_id)
-      );
-      return acc + (course?.price || 0) * item.quantity;
-    }, 0);
+ useEffect(() => {
+  if (!cart || !courses || !userData) return;
 
-    setTotalPrice(total);
+  const total = cart.items.reduce((acc, item) => {
+    const course = courses.find(c => c.course_id === item.course_id);
+    return acc + (course?.price || 0) * item.quantity;
+  }, 0);
 
-    // Update total price in backend
-    if (userData) {
-      api
-        .put("/cart/updatetotalprice", {
-          user_id: userData.user_id,
-          total_price: total,
-        })
-        .catch((err) => console.error("Failed to update total:", err));
-    }
-  }, [cart, courses, userData]);
+  setTotalPrice(total);
+
+  // Only update backend if total price changed
+  if (cart.total_price !== total) {
+    api.put("/cart/updatetotalprice", { user_id: userData.user_id, total_price: total })
+       .catch(err => console.error(err));
+  }
+}, [cart, courses, userData]);
+
 
   // Cart actions
   // Remove from cart

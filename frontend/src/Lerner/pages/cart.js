@@ -28,13 +28,14 @@ export default function Cart() {
   const [cart, setCart] = useState(null);
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
   const [courses, setCourses] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const { fetchCartCount, setCartCount } = useCart();
+  const { setCartCount } = useCart();
+  const [cartLoading, setCartLoading] = useState(true);
+
 
   const token = localStorage.getItem("token");
 
@@ -77,45 +78,48 @@ export default function Cart() {
 
   // Fetch cart and courses
   useEffect(() => {
-    if (!userData) return;
+  if (!userData) return;
 
-    const fetchCart = async () => {
-      try {
-        const res = await api.get("/cart/getcart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  const fetchCart = async () => {
+    setCartLoading(true);
+    try {
+      // 1️⃣ Fetch cart
+      const res = await api.get("/cart/getcart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const cartData = res.data;
 
-        const cartData = res.data;
-
-        const coursePromises = cartData.items.map(async (item) => {
-          try {
-            const courseRes = await api.get(`/courses/${item.course_id}`);
-            return courseRes.data;
-          } catch {
-            return null;
-          }
-        });
-
-        const validCourses = (await Promise.all(coursePromises)).filter(
-          (c) => c !== null
-        );
-        const validCourseIds = validCourses.map((c) => c.course_id);
-
-        // Filter cart items that still exist
-        cartData.items = cartData.items.filter((item) =>
-          validCourseIds.includes(item.course_id)
-        );
-
+      if (cartData.items.length === 0) {
         setCart(cartData);
-        setCourses(validCourses);
-      } catch (err) {
-        console.error(err);
-        showSnackbar("Failed to fetch cart", "error");
+        setCourses([]);
+        setCartLoading(false);
+        return;
       }
-    };
 
-    fetchCart();
-  }, [userData]);
+      // 2️⃣ Fetch all course details in one request
+      const ids = cartData.items.map(item => item.course_id).join(',');
+      const coursesRes = await api.get(`/courses?ids=${ids}`);
+      const validCourses = coursesRes.data;
+
+      // 3️⃣ Filter cart items that exist
+      const validCourseIds = validCourses.map(c => c.course_id);
+      cartData.items = cartData.items.filter(item =>
+        validCourseIds.includes(item.course_id)
+      );
+
+      setCart(cartData);
+      setCourses(validCourses);
+    } catch (err) {
+      console.error(err);
+      showSnackbar("Failed to fetch cart", "error");
+    } finally {
+      setCartLoading(false);
+    }
+  };
+
+  fetchCart();
+}, [userData]);
+
 
   // Recalculate total price
   useEffect(() => {
@@ -190,21 +194,23 @@ export default function Cart() {
       </Box>
     );
 
-  if (isLoading)
-    return (
-      <Box display="flex" justifyContent="center" mt={10}>
-        <CircularProgress />
-      </Box>
-    );
-  if (!cart || cart.items.length === 0)
-    return (
-      <Box textAlign="center" mt={10}>
-        <Typography variant="h5">Your cart is empty</Typography>
-        <Button component={Link} to="/shop" variant="contained" sx={{ mt: 2 }}>
-          Back to shop
-        </Button>
-      </Box>
-    );
+  if (isLoading || cartLoading)
+  return (
+    <Box display="flex" justifyContent="center" mt={10}>
+      <CircularProgress />
+    </Box>
+  );
+
+if (!cart || cart.items.length === 0)
+  return (
+    <Box textAlign="center" mt={10}>
+      <Typography variant="h5">Your cart is empty</Typography>
+      <Button component={Link} to="/shop" variant="contained" sx={{ mt: 2 }}>
+        Back to shop
+      </Button>
+    </Box>
+  );
+
 
   return (
     <div>
