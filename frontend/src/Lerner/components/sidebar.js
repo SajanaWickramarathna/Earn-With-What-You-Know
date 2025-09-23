@@ -3,16 +3,16 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Logout } from "@mui/icons-material";
 import DashboardIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 import AccountCircleIcon from "@mui/icons-material/AccountCircleOutlined";
-import Shop2Icon from '@mui/icons-material/Shop2';
+import Shop2Icon from "@mui/icons-material/Shop2";
 import NotificationIcon from "@mui/icons-material/Notifications";
 import TicketIcon from "@mui/icons-material/ListAltOutlined";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutlineOutlined";
-import SchoolIcon from '@mui/icons-material/School';
+import SchoolIcon from "@mui/icons-material/School";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooksOutlined";
-import HistoryIcon from '@mui/icons-material/History';
+import HistoryIcon from "@mui/icons-material/History";
 import { api } from "../../api";
 import { CircularProgress } from "@mui/material";
-
+import { useCart } from "../../context/CartContext";
 
 export default function Sidebar() {
   const [userData, setUserData] = useState(null);
@@ -21,6 +21,7 @@ export default function Sidebar() {
   const [notificationCount, setNotificationCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
+  const { cartCount, fetchCartCount } = useCart(); // grab fetchCartCount
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -54,9 +55,7 @@ export default function Sidebar() {
 
     const fetchNotifications = async () => {
       try {
-        const res = await api.get(
-          `/notifications/user/${userData.user_id}`
-        );
+        const res = await api.get(`/notifications/user/${userData.user_id}`);
         const unreadCount = res.data.filter((n) => !n.read).length;
         setNotificationCount(unreadCount);
       } catch (err) {
@@ -66,11 +65,9 @@ export default function Sidebar() {
 
     fetchNotifications();
 
-   
-
     const interval = setInterval(fetchNotifications, 10000);
     return () => clearInterval(interval);
-  }, [userData]); 
+  }, [userData]);
 
   const handleNavigation = (path) => {
     navigate(path, { state: { data: userData } });
@@ -90,7 +87,9 @@ export default function Sidebar() {
       <div className="w-full p-6 flex flex-col items-center">
         <div className="relative mb-4">
           <img
-            src={`${api.defaults.baseURL.replace('/api', '')}${userData?.profilePic}`}
+            src={`${api.defaults.baseURL.replace("/api", "")}${
+              userData?.profilePic
+            }`}
             alt="Profile"
             className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-md"
           />
@@ -171,7 +170,12 @@ export default function Sidebar() {
                     {notificationCount}
                   </span>
                 )}
-
+                {/* Badge for Cart */}
+                {item.name === "Cart" && cartCount > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {cartCount}
+                  </span>
+                )}
               </button>
             </li>
           ))}
