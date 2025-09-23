@@ -110,47 +110,47 @@ export default function Sidebar() {
           {[
             {
               name: "Dashboard",
-              path: "/customer-dashboard",
+              path: "/learner-dashboard",
               icon: <DashboardIcon />,
             },
             {
               name: "My Courses",
-              path: "/customer-dashboard",
+              path: "/learner-dashboard",
               icon: <LibraryBooksIcon />,
             },
             {
               name: "Profile",
-              path: "/customer-dashboard/profile",
+              path: "/learner-dashboard/profile",
               icon: <AccountCircleIcon />,
             },
             {
               name: "Cart",
-              path: "/customer-dashboard/cart",
+              path: "/learner-dashboard/cart",
               icon: <Shop2Icon />,
             },
             {
               name: "Purchase history",
-              path: "/customer-dashboard/orders",
+              path: "/learner-dashboard/orders",
               icon: <HistoryIcon />,
             },
             {
               name: "learning summary",
-              path: "/customer-dashboard/delivery",
+              path: "/learner-dashboard/delivery",
               icon: <SchoolIcon />,
             },
             {
               name: "Notifications",
-              path: "/customer-dashboard/notifications",
+              path: "/learner-dashboard/notifications",
               icon: <NotificationIcon />,
             },
             {
               name: "Tickets",
-              path: "/customer-dashboard/tickets",
+              path: "/learner-dashboard/tickets",
               icon: <TicketIcon />,
             },
             {
               name: "Add Ticket",
-              path: "/customer-dashboard/addticket",
+              path: "/learner-dashboard/addticket",
               icon: <AddCircleOutlineIcon />,
             },
           ].map((item) => (
