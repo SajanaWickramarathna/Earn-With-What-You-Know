@@ -27,16 +27,16 @@ import "react-toastify/dist/ReactToastify.css";
 export default function Cart() {
   const [cart, setCart] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [user_id, setUserId] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
   const [courses, setCourses] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const { fetchCartCount, setCartCount } = useCart();
-
-  const token = localStorage.getItem("token");
 
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
@@ -61,17 +61,28 @@ export default function Cart() {
 
     const fetchUserData = async () => {
       try {
-        const res = await api.get("/users/me", {
+        const response = await api.get("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserData(res.data);
-      } catch (err) {
-        console.error(err);
-        showSnackbar("Failed to fetch user data", "error");
+        setUserData(response.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        if (error.response?.status === 401) {
+          showSnackbar("Session expired. Please log in again.", "error");
+          setTimeout(() => {
+            localStorage.removeItem("token");
+            setToken(null);
+            window.location.href = "/logout";
+          }, 2000);
+        } else {
+          setError("Failed to load cart");
+          showSnackbar("Failed to load cart", "error");
+        }
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchUserData();
   }, [token]);
 
@@ -81,7 +92,45 @@ export default function Cart() {
 
     const fetchCart = async () => {
       try {
-        const res = await api.get("/cart/getcart", {
+        const response = await api.get(`/cart/getcart/${userData.user_id}`);
+        const cartData = response.data;
+
+        const coursePromises = cartData.items.map(async (item) => {
+          try {
+            const res = await api.get(`/courses/${item.course_id}`);
+            return res.data;
+          } catch (err) {
+            console.warn(
+              `Course ${item.course_id} not found, removing from cart`
+            );
+            return null;
+          }
+        });
+
+        const courseswithDetails = await Promise.all(coursePromises);
+        const validCourses = courseswithDetails.filter((c) => c !== null);
+        const validCourseIds = validCourses.map((c) => c.course_id);
+
+        // Filter out invalid cart items
+        const updatedCartItems = cartData.items.filter((item) =>
+          validCourseIds.includes(item.course_id)
+        );
+
+        setCart({ ...cartData, items: updatedCartItems });
+        setCourses(validCourses);
+        setUserId(userData.user_id);
+      } catch (err) {
+        console.error("Error fetching cart:", err);
+        setError("Failed to fetch cart");
+        showSnackbar("Failed to fetch cart", "error");
+      }
+    };
+
+    fetchCart();
+  }, [userData]);
+
+  {
+    /*const res = await api.get("/cart/getcart", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -115,11 +164,33 @@ export default function Cart() {
     };
 
     fetchCart();
-  }, [userData]);
+  }, [userData]);*/
+  }
 
   // Recalculate total price
   useEffect(() => {
-    if (!cart || !courses) return;
+    if (!cart || !userData) return;
+
+    const total = cart.items.reduce((acc, item) => {
+      const course = courses.find((c) => c.course_id === item.course_id);
+      return acc + (course?.price || 0) * item.quantity;
+    }, 0);
+    setTotalPrice(total);
+
+    api
+      .put("/cart/updatetotalprice", {
+        user_id: userData.user_id,
+        total_price: total,
+      })
+      .then((response) => setCart(response.data))
+      .catch((err) => {
+        console.error("Failed to update total price:", err);
+        showSnackbar("Failed to update total price", "error");
+      });
+  }, [cart, courses, userData]);
+
+  {
+    /*if (!cart || !courses) return;
 
     const total = cart.items.reduce((acc, item) => {
       const course = courses.find(c => c.course_id === Number(item.course_id));
@@ -138,48 +209,111 @@ export default function Cart() {
         .catch((err) => console.error("Failed to update total:", err));
     }
   }, [cart, courses, userData]);
-
+*/
+  }
   // Cart actions
   // Remove from cart
-const handleRemoveFromCart = (course_id) => {
-  api
-    .delete("/cart/removefromcart", {
-      data: { user_id: userData.user_id, course_id },
-    })
-    .then(res => {
-      setCart(res.data);
-      const newCount = res.data.items.reduce((sum, item) => sum + item.quantity, 0);
-      setCartCount(newCount); // instant update
-    })
-    .catch(() => toast.error("Failed to remove course"));
-};
+  const handleRemoveFromCart = (course_id) => {
+    api
+      .delete("/cart/removefromcart", {
+        data: { user_id, course_id },
+      })
+      .then((response) => {
+        setCart(response.data);
+        fetchCartCount(); // refresh cart count
+        showSnackbar("Course removed from cart");
+      })
+      .catch(() => {
+        setError("Failed to remove course from cart");
+        showSnackbar("Failed to remove course", "error");
+      });
+  };
 
-// Clear cart
-const handleClearCart = () => {
-  api.delete(`/cart/clearcart/${userData.user_id}`)
-    .then(() => {
-      setCart(null);
-      setCartCount(0); // instant update
+  // Clear cart
+  const handleClearCart = () => {
+    api
+      .delete(`/cart/clearcart/${userData.user_id}`)
+      .then(() => {
+        setCart(null);
+        fetchCartCount();
+        showSnackbar("Cart cleared");
+        setTimeout(() => {
+          window.location.href = "/shop";
+        }, 1000);
+      })
+      .catch(() => {
+        setError("Failed to clear cart");
+        showSnackbar("Failed to clear cart", "error");
+      });
+  };
+
+    // Update quantity
+    const handleUpdateQuantity = (user_id, course_id, quantity) => {
+    if (quantity < 1) return;
+    api
+    .put("/cart/updatecartitem", {
+        user_id,
+        course_id,
+        quantity,
+        })
+    .then((response) => {
+        setCart(response.data);
+        fetchCartCount(); 
     })
-    .catch(() => toast.error("Failed to clear cart"));
-};
+    .catch(() => {
+        setError("Failed to update quantity");
+        showSnackbar("Failed to update quantity", "error");
+    });
+    };
+    
+  {
+    /*const handleRemoveFromCart = (course_id) => {
+    api
+      .delete("/cart/removefromcart", {
+        data: { user_id: userData.user_id, course_id },
+      })
+      .then((res) => {
+        setCart(res.data);
+        const newCount = res.data.items.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        setCartCount(newCount); // instant update
+      })
+      .catch(() => toast.error("Failed to remove course"));
+  };
 
-// Update quantity
-const handleUpdateQuantity = (course_id, quantity) => {
-  if (quantity < 1) return;
-  api.put("/cart/updatecartitem", {
-    user_id: userData.user_id,
-    course_id,
-    quantity,
-  })
-  .then(res => {
-    setCart(res.data);
-    const newCount = res.data.items.reduce((sum, item) => sum + item.quantity, 0);
-    setCartCount(newCount); // instant update
-  })
-  .catch(() => toast.error("Failed to update quantity"));
-};
+  // Clear cart
+  const handleClearCart = () => {
+    api
+      .delete(`/cart/clearcart/${userData.user_id}`)
+      .then(() => {
+        setCart(null);
+        setCartCount(0); // instant update
+      })
+      .catch(() => toast.error("Failed to clear cart"));
+  };
 
+  // Update quantity
+  const handleUpdateQuantity = (course_id, quantity) => {
+    if (quantity < 1) return;
+    api
+      .put("/cart/updatecartitem", {
+        user_id: userData.user_id,
+        course_id,
+        quantity,
+      })
+      .then((res) => {
+        setCart(res.data);
+        const newCount = res.data.items.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        setCartCount(newCount); // instant update
+      })
+      .catch(() => toast.error("Failed to update quantity"));
+  };*/
+  }
 
   if (!token)
     return (
