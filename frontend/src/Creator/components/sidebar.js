@@ -14,8 +14,7 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOnOutlined";
 import NotificationIcon from "@mui/icons-material/Notifications";
 import TicketIcon from "@mui/icons-material/ListAltOutlined";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutlineOutlined";
-import SettingIcon from "@mui/icons-material/SettingsOutlined";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 
 export default function CreatorSidebar() {
   const [userData, setUserData] = useState(null);
