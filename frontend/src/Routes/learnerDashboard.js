@@ -6,6 +6,8 @@ import ViweTicket from "../Lerner/pages/tickets/viewticket";
 import ViewallTicket from "../Lerner/pages/tickets/tickets";
 import Notifications from "../Lerner/pages/notifications";
 import Cart from "../Lerner/pages/cart";
+import Profile from "../Lerner/pages/profile";
+import EditProfile from "../Lerner/pages/editprofile";
 
 export default function LearnerDashboard() {
     return (
@@ -22,11 +24,13 @@ export default function LearnerDashboard() {
          <Header/>
         </div>
             <Routes>
-             <Route path="/tickets" element={<ViewallTicket />} />
-             <Route path="/viewticket/:id" element={<ViweTicket />} />
-             <Route path="/addticket" element={<AddTicket />} />
-             <Route path="/notifications" element={<Notifications />} />
-             <Route path="/cart" element={<Cart />} />
+                <Route path="/tickets" element={<ViewallTicket />} />
+                <Route path="/viewticket/:id" element={<ViweTicket />} />
+                <Route path="/addticket" element={<AddTicket />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/edit-profile" element={<EditProfile />} />           
             </Routes>
         </div>
         </div>
