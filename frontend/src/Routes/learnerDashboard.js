@@ -5,6 +5,7 @@ import AddTicket from "../Lerner/pages/tickets/addticket";
 import ViweTicket from "../Lerner/pages/tickets/viewticket";
 import ViewallTicket from "../Lerner/pages/tickets/tickets";
 import Notifications from "../Lerner/pages/notifications";
+import Cart from "../Lerner/pages/cart";
 
 export default function LearnerDashboard() {
     return (
@@ -25,6 +26,7 @@ export default function LearnerDashboard() {
              <Route path="/viewticket/:id" element={<ViweTicket />} />
              <Route path="/addticket" element={<AddTicket />} />
              <Route path="/notifications" element={<Notifications />} />
+             <Route path="/cart" element={<Cart />} />
             </Routes>
         </div>
         </div>
