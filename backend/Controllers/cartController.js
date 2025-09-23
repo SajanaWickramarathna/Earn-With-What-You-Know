@@ -3,7 +3,7 @@ const Course = require('../Models/courses');
 
 //add to cart
 exports.addToCart = async (req, res) => {
-    const { course_id, quantity } = req.body;
+    const { course_id } = req.body; // no quantity needed
     const user_id = req.user_id; // from JWT
 
     try {
@@ -13,15 +13,15 @@ exports.addToCart = async (req, res) => {
         let cart = await Cart.findOne({ user_id });
         if (!cart) cart = new Cart({ user_id, items: [] });
 
-        const existingItem = cart.items.find(item => item.course_id === course_id);
+        const existingItem = cart.items.find(item => item.course_id.toString() === course_id.toString());
         if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            cart.items.push({ course_id, quantity, price: course.price });
+            return res.status(400).json({ message: 'You can only buy one of this course.' });
         }
 
+        cart.items.push({ course_id, quantity: 1, price: course.price });
+
         // Update total price
-        cart.total_price = cart.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+        cart.total_price = cart.items.reduce((sum, item) => sum + item.price, 0);
 
         await cart.save();
         res.status(200).json(cart);
@@ -29,6 +29,7 @@ exports.addToCart = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
 
 
 

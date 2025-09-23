@@ -122,7 +122,9 @@ export default function Cart() {
     if (!cart || !courses) return;
 
     const total = cart.items.reduce((acc, item) => {
-      const course = courses.find(c => c.course_id === Number(item.course_id));
+      const course = courses.find(
+        (c) => c.course_id === Number(item.course_id)
+      );
       return acc + (course?.price || 0) * item.quantity;
     }, 0);
 
@@ -141,45 +143,37 @@ export default function Cart() {
 
   // Cart actions
   // Remove from cart
-const handleRemoveFromCart = (course_id) => {
-  api
-    .delete("/cart/removefromcart", {
-      data: { user_id: userData.user_id, course_id },
-    })
-    .then(res => {
-      setCart(res.data);
-      const newCount = res.data.items.reduce((sum, item) => sum + item.quantity, 0);
-      setCartCount(newCount); // instant update
-    })
-    .catch(() => toast.error("Failed to remove course"));
-};
+  const handleRemoveFromCart = (course_id) => {
+    api
+      .delete("/cart/removefromcart", {
+        data: { user_id: userData.user_id, course_id },
+      })
+      .then((res) => {
+        setCart(res.data);
+        const newCount = res.data.items.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        setCartCount(newCount); // instant update
+      })
+      .catch(() => toast.error("Failed to remove course"));
+  };
 
-// Clear cart
-const handleClearCart = () => {
-  api.delete(`/cart/clearcart/${userData.user_id}`)
-    .then(() => {
-      setCart(null);
-      setCartCount(0); // instant update
-    })
-    .catch(() => toast.error("Failed to clear cart"));
-};
+  // Clear cart
+  const handleClearCart = () => {
+    api
+      .delete(`/cart/clearcart/${userData.user_id}`)
+      .then(() => {
+        setCart(null);
+        setCartCount(0); // instant update
+      })
+      .catch(() => toast.error("Failed to clear cart"));
+  };
 
-// Update quantity
-const handleUpdateQuantity = (course_id, quantity) => {
-  if (quantity < 1) return;
-  api.put("/cart/updatecartitem", {
-    user_id: userData.user_id,
-    course_id,
-    quantity,
-  })
-  .then(res => {
-    setCart(res.data);
-    const newCount = res.data.items.reduce((sum, item) => sum + item.quantity, 0);
-    setCartCount(newCount); // instant update
-  })
-  .catch(() => toast.error("Failed to update quantity"));
-};
-
+  // No longer needed, block quantity updates
+  const handleUpdateQuantity = () => {
+    toast.info("Each course can only be added once.");
+  };
 
   if (!token)
     return (
@@ -238,30 +232,10 @@ const handleUpdateQuantity = (course_id, quantity) => {
                     <Typography variant="h6">{course.title}</Typography>
                     <Typography>LKR {course.price.toFixed(2)}</Typography>
                     <Box display="flex" alignItems="center" mt={1}>
-                      <IconButton
-                        onClick={() =>
-                          handleUpdateQuantity(
-                            item.course_id,
-                            item.quantity - 1
-                          )
-                        }
-                        disabled={item.quantity === 1}
-                      >
-                        <RemoveIcon />
-                      </IconButton>
-                      <Typography mx={1}>{item.quantity}</Typography>
-                      <IconButton
-                        onClick={() =>
-                          handleUpdateQuantity(
-                            item.course_id,
-                            item.quantity + 1
-                          )
-                        }
-                      >
-                        <AddIcon />
-                      </IconButton>
+                      <Typography mx={1}>Quantity: 1</Typography>
                     </Box>
                   </Box>
+
                   <IconButton
                     color="error"
                     onClick={() => handleRemoveFromCart(item.course_id)}

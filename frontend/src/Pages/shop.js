@@ -141,6 +141,7 @@ const Shop = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");  
   const { fetchCartCount } = useCart();
   const token = localStorage.getItem("token");
+  
 
   const categoryOptions = [
     "Cooking & Food Skills",
@@ -173,6 +174,7 @@ const Shop = () => {
     toast.warning("Please log in to add courses to cart.");
     return;
   }
+  
   api
   .post(
     "/cart/addtocart",
@@ -187,7 +189,10 @@ const Shop = () => {
     toast.error(err.response?.data?.message || "Failed to add to cart.");
     console.error(err);
   });
+
+  
 };
+
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title
       .toLowerCase()
@@ -371,6 +376,7 @@ const Shop = () => {
                       </Button>
                       <Button
                         variant="contained"
+                        
                         className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg transition ${
                           token
                             ? "bg-blue-600 hover:bg-blue-700 text-white"
