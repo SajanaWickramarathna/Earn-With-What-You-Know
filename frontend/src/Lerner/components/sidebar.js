@@ -6,7 +6,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircleOutlined";
 import Shop2Icon from '@mui/icons-material/Shop2';
 import NotificationIcon from "@mui/icons-material/Notifications";
 import TicketIcon from "@mui/icons-material/ListAltOutlined";
-import PlusOneIcon from "@mui/icons-material/PlusOneOutlined";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import SchoolIcon from '@mui/icons-material/School';
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooksOutlined";
 import HistoryIcon from '@mui/icons-material/History';
@@ -151,7 +151,7 @@ export default function Sidebar() {
             {
               name: "Add Ticket",
               path: "/customer-dashboard/addticket",
-              icon: <PlusOneIcon />,
+              icon: <AddCircleOutlineIcon />,
             },
           ].map((item) => (
             <li key={item.name}>
