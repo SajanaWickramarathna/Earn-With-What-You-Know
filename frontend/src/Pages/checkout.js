@@ -1,9 +1,8 @@
-// pages/Checkout.js
 import React, { useEffect, useState } from "react";
 import { api } from "../api";
 import Nav from "../components/navigation";
 import { useCart } from "../context/CartContext";
-import { Box, Typography, TextField, Button, CircularProgress, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, Button, CircularProgress, Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export default function Checkout() {
@@ -12,7 +11,6 @@ export default function Checkout() {
   const token = localStorage.getItem("token");
 
   const [cart, setCart] = useState(null);
-  const [shipping, setShipping] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [totalPrice, setTotalPrice] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -28,7 +26,7 @@ export default function Checkout() {
       try {
         const res = await api.get("/cart/getcart", { headers: { Authorization: `Bearer ${token}` } });
         setCart(res.data);
-        const total = res.data.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const total = res.data.items.reduce((sum, item) => sum + item.price, 0);
         setTotalPrice(total);
       } catch {
         showSnackbar("Failed to fetch cart", "error");
@@ -40,13 +38,11 @@ export default function Checkout() {
   }, [token]);
 
   const handlePlaceOrder = async () => {
-    if (!shipping) {
-      showSnackbar("Please enter shipping address", "error");
-      return;
-    }
-
     try {
-      const res = await api.post("/orders/create", { shipping_address: shipping, payment_method: paymentMethod }, { headers: { Authorization: `Bearer ${token}` } });
+      await api.post("/orders/create", 
+        { payment_method: paymentMethod }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       showSnackbar("Order placed successfully");
       setCartCount(0);
       navigate("/my-orders");
@@ -63,11 +59,6 @@ export default function Checkout() {
       <Nav />
       <Box sx={{ p: 3, maxWidth: 600, mx: "auto" }}>
         <Typography variant="h4" mb={2}>Checkout</Typography>
-
-        <Box mb={2}>
-          <Typography variant="h6">Shipping Address</Typography>
-          <TextField fullWidth multiline rows={3} value={shipping} onChange={(e) => setShipping(e.target.value)} />
-        </Box>
 
         <Box mb={2}>
           <Typography variant="h6">Payment Method</Typography>
