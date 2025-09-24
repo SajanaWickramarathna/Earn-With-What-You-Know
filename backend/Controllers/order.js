@@ -1,56 +1,53 @@
-const Order = require('../Models/order');
-const Course = require('../Models/courses');
-const Earning = require('../Models/earning');
+// controllers/orderController.js
+const Order = require("../Models/Order");
+const Cart = require("../Models/CartModel");
+const Course = require("../Models/courses");
 
-// Create new order (called when learner purchases a course)
 exports.createOrder = async (req, res) => {
-    try {
-        const { courseId, learnerId, totalPrice } = req.body;
+  const { shipping_address, payment_method } = req.body;
+  const user_id = req.user_id;
 
-        const course = await Course.findById(courseId);
-        if (!course) return res.status(404).json({ message: 'Course not found' });
-
-        const order = new Order({
-            course: course._id,
-            creator: course.creator,
-            learner: learnerId,
-            totalPrice,
-            status: 'completed' // assume immediate completion for analytics
-        });
-
-        await order.save();
-
-        // Update course purchase count
-        course.purchase_count += 1;
-        await course.save();
-
-        // Update creator earnings
-        const EarningModel = require('../Models/earning');
-        const description = `Course Sale: ${course.title}`;
-        const creatorId = course.creator;
-        const amount = totalPrice; // optionally, subtract platform fee
-        // Use addCredit function from earnings controller
-        const { addCredit } = require('../Controllers/createEarning');
-        await addCredit(creatorId, amount, description);
-
-        res.status(201).json({ message: 'Order created successfully', order });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const cart = await Cart.findOne({ user_id });
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
     }
+
+    const orderItems = await Promise.all(cart.items.map(async (item) => {
+      const course = await Course.findOne({ course_id: item.course_id });
+      if (!course) throw new Error(`Course ${item.course_id} not found`);
+      return { course_id: course.course_id, quantity: 1, price: course.price };
+    }));
+
+    const total_price = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    const newOrder = new Order({
+      user_id,
+      items: orderItems,
+      total_price,
+      shipping_address,
+      payment_method,
+      payment_status: payment_method === "COD" ? "pending" : "pending"
+    });
+
+    await newOrder.save();
+
+    // Clear user's cart
+    await Cart.findOneAndDelete({ user_id });
+
+    res.status(201).json({ message: "Order placed", order: newOrder });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-// Get all orders for a creator (for analytics or order history)
-exports.getCreatorOrders = async (req, res) => {
-    try {
-        const creatorId = req.user._id;
-        const orders = await Order.find({ creator: creatorId })
-            .populate('course', 'title')
-            .populate('learner', 'firstName lastName email')
-            .sort({ createdAt: -1 });
-        res.json(orders);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
-    }
+// Get all orders for user
+exports.getMyOrders = async (req, res) => {
+  const user_id = req.user_id;
+  try {
+    const orders = await Order.find({ user_id }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

@@ -1,31 +1,36 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+// models/Order.js
+const mongoose = require("mongoose");
+const Counter = require("./counter");
 
-const orderSchema = new Schema({
-    order_id: { type: Number, unique: true }, // auto-increment
-    course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
-    creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    learner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    totalPrice: { type: Number, required: true },
-    status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
-    createdAt: { type: Date, default: Date.now }
-});
+const orderSchema = new mongoose.Schema({
+  order_id: { type: Number, unique: true },
+  user_id: { type: String, ref: "user", required: true },
+  items: [
+    {
+      course_id: { type: Number, ref: "course", required: true },
+      quantity: { type: Number, default: 1 },
+      price: { type: Number, required: true },
+    },
+  ],
+  total_price: { type: Number, required: true },
+  shipping_address: { type: String, required: true },
+  payment_method: { type: String, enum: ["COD", "Payment Slip"], required: true },
+  payment_status: { type: String, enum: ["pending", "paid"], default: "pending" },
+  status: { type: String, enum: ["pending", "processing", "completed", "cancelled"], default: "pending" },
+  created_at: { type: Date, default: Date.now },
+}, { timestamps: true });
 
 // Auto-increment order_id
-const Counter = require('./counter');
-orderSchema.pre('save', async function (next) {
-    if (!this.isNew) return next();
-    try {
-        const counter = await Counter.findOneAndUpdate(
-            { name: 'order_id' },
-            { $inc: { value: 1 } },
-            { new: true, upsert: true }
-        );
-        this.order_id = counter.value;
-        next();
-    } catch (err) {
-        next(err);
-    }
+orderSchema.pre("save", async function(next) {
+  if (!this.isNew) return next();
+  const counter = await Counter.findOneAndUpdate(
+    { name: "order_id" },
+    { $inc: { value: 1 } },
+    { new: true, upsert: true }
+  );
+  this.order_id = counter.value;
+  next();
 });
 
-module.exports = mongoose.models.Order || mongoose.model('Order', orderSchema);
+const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
+module.exports = Order;

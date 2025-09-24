@@ -17,6 +17,7 @@ import ContactUsForm from "./Pages/ContactUsForm";
 import Shop from "./Pages/shop";
 import CartPage from "./Pages/Cart";
 import Notifications from "./Pages/notifications";
+import Checkout  from "./Pages/checkout";
 
 function App() {
   return (
@@ -42,6 +43,8 @@ function App() {
       <Route path="/cart" element={<CartPage />} />
 
       <Route path="/notifications" element={<Notifications />} />
+
+      <Route path="/checkout" element={<Checkout />} />
 
       <Route
         path="/admin-dashboard/*"
