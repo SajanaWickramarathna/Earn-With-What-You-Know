@@ -1,22 +1,14 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const orderController = require('../Controllers/order');
-const authMiddleware = require('../middleware/authMiddleware');
-const uploadMiddleware = require('../middleware/uploadMiddleware');
+const authMiddleware = require("../middleware/authMiddleware");
+const orderController = require("../Controllers/order");
 
-// Create a new order (with payment slip upload)
-router.post('/create', uploadMiddleware.single('payment_slip'), orderController.createOrder);
+// Learner
+router.post("/", authMiddleware(["learner"]), orderController.createOrder);
+router.get("/my", authMiddleware(["learner"]), orderController.getMyOrders);
 
-// Get orders for a specific user
-router.get('/user/:user_id', orderController.getUserOrders);
-
-// Get all orders 
-router.get('/all', orderController.getAllOrders);
-
-// Update order status 
-router.put('/update/:order_id', orderController.updateOrderStatus);
-
-// Get order details by order ID
-router.get('/:order_id', orderController.getOrderById);
+// Admin
+router.get("/", authMiddleware(["admin"]), orderController.getAllOrders);
+router.put("/:id/status", authMiddleware(["admin"]), orderController.updateOrderStatus);
 
 module.exports = router;

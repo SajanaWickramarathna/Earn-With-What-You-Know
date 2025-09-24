@@ -1,35 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../api";
-import Nav from "../components/navigation";
-import { useCart } from "../context/CartContext";
-import { Box, Typography, Button, CircularProgress, Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import {
+  Typography, Box, Button, Paper, CircularProgress, RadioGroup, FormControlLabel, Radio
+} from "@mui/material";
+import Nav from "../components/navigation";
 
 export default function Checkout() {
-  const { setCartCount } = useCart();
+  const [cart, setCart] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  const [cart, setCart] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("COD");
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
-
-  const showSnackbar = (msg, severity = "success") => setSnackbar({ open: true, message: msg, severity });
-  const handleClose = () => setSnackbar({ ...snackbar, open: false });
-
-  // Fetch cart
   useEffect(() => {
-    if (!token) return;
     const fetchCart = async () => {
       try {
-        const res = await api.get("/cart/getcart", { headers: { Authorization: `Bearer ${token}` } });
+        const res = await api.get("/cart/getcart", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setCart(res.data);
-        const total = res.data.items.reduce((sum, item) => sum + item.price, 0);
-        setTotalPrice(total);
-      } catch {
-        showSnackbar("Failed to fetch cart", "error");
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -39,45 +31,54 @@ export default function Checkout() {
 
   const handlePlaceOrder = async () => {
     try {
-      await api.post("/orders/create", 
-        { payment_method: paymentMethod }, 
+      const res = await api.post("/orders", 
+        { payment_method: paymentMethod },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      showSnackbar("Order placed successfully");
-      setCartCount(0);
-      navigate("/my-orders");
+      navigate(`/shop`);
     } catch (err) {
-      showSnackbar(err.response?.data?.message || "Order failed", "error");
+      console.error(err);
+      alert("Failed to place order");
     }
   };
 
-  if (loading) return <Box display="flex" justifyContent="center" mt={10}><CircularProgress /></Box>;
-  if (!cart || cart.items.length === 0) return <Typography mt={10} textAlign="center">Your cart is empty</Typography>;
+  if (loading) return <CircularProgress />;
+
+  if (!cart || cart.items.length === 0)
+    return <Typography>Your cart is empty.</Typography>;
 
   return (
     <div>
       <Nav />
-      <Box sx={{ p: 3, maxWidth: 600, mx: "auto" }}>
-        <Typography variant="h4" mb={2}>Checkout</Typography>
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h4">Checkout</Typography>
+        <Paper sx={{ p: 2, mt: 2 }}>
+          {cart.items.map(item => (
+            <Box key={item.course_id} display="flex" justifyContent="space-between">
+              <Typography>{item.course_id}</Typography>
+              <Typography>LKR {item.price}</Typography>
+            </Box>
+          ))}
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            Total: LKR {cart.total_price.toFixed(2)}
+          </Typography>
+        </Paper>
 
-        <Box mb={2}>
-          <Typography variant="h6">Payment Method</Typography>
-          <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-            <option value="COD">Cash on Delivery</option>
-            <option value="Payment Slip">Payment Slip</option>
-          </select>
-        </Box>
+        <Typography variant="h6" sx={{ mt: 3 }}>Payment Method</Typography>
+        <RadioGroup value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+          <FormControlLabel value="COD" control={<Radio />} label="Cash on Delivery" />
+          <FormControlLabel value="Card" control={<Radio />} label="Credit/Debit Card" />
+        </RadioGroup>
 
-        <Box mb={2}>
-          <Typography variant="h6">Total: LKR {totalPrice.toFixed(2)}</Typography>
-        </Box>
-
-        <Button variant="contained" fullWidth onClick={handlePlaceOrder}>Place Order</Button>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          sx={{ mt: 3 }}
+          onClick={handlePlaceOrder}
+        >
+          Place Order
+        </Button>
       </Box>
-
-      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={handleClose}>
-        <Alert severity={snackbar.severity} onClose={handleClose}>{snackbar.message}</Alert>
-      </Snackbar>
     </div>
   );
 }
